@@ -7,6 +7,7 @@ load("oracle.intervals.RData")
 load("oracle.optimal.RData")
 load("dp.peaks.sets.RData")
 
+result.list <- list()
 for(set.name in names(dp.peaks.sets)){
   train.sets <- dp.peaks.sets[[set.name]]
   interval.list <- oracle.intervals[[set.name]]
@@ -24,7 +25,7 @@ for(set.name in names(dp.peaks.sets)){
       ## How fast can we turn these log.lambda values into the optimal
       ## number of segments for each sample?
       peaks <- data.frame(pred.log.lambda, foverlaps=NA, for.list=NA)
-      times <- microbenchmark(foverlaps={
+      times <- microbenchmark(foverlaps.setkey2={
         optimal.dt.list <- list()
         for(sample.id in names(optimal.samples)){
           optimal.dt.list[[sample.id]] <-
@@ -52,19 +53,27 @@ for(set.name in names(dp.peaks.sets)){
       peaks[pred.dt$sample.id, "foverlaps"] <- overlap.dt$peaks
       with(peaks, stopifnot(foverlaps == for.list))
       ## What if we start with the dt?
-      times2 <- microbenchmark(pred.data.table={
+      times2 <- microbenchmark(foverlaps.setkey={
         pred.dt <-
           data.table(sample.id=rownames(pred.log.lambda),
                      log.lambda=as.numeric(pred.log.lambda),
                      log.lambda2=as.numeric(pred.log.lambda))
         setkey(pred.dt, sample.id, log.lambda, log.lambda2)
         overlap.dt <- foverlaps(pred.dt, optimal.dt)
-      }, only.foverlaps={
+      }, foverlaps={
         overlap.dt <- foverlaps(pred.dt, optimal.dt)
       }, times=10)
-      rbind(times, times2)
+      result.list[[paste(set.name, set.i, test.chunk)]] <-
+        data.table(set.name, set.i, test.chunk,
+                   ref.rows=nrow(optimal.dt),
+                   query.rows=nrow(pred.dt),
+                   overlap.rows=nrow(overlap.dt),
+                   rbind(times, times2))
     }
   }
 }
 ## foverlaps is not faster than a simple vector scan in these cases
 ## where the reference data.frames are not very big.
+piecewise.constant <- do.call(rbind, result.list)
+
+save(piecewise.constant, file="piecewise.constant.RData")

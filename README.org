@@ -1,0 +1,6 @@
+Benchmarking foverlaps
+
+When is data.table::foverlaps faster than conventional R packages?
+
+piecewise.constant.R shows that foverlaps is slower than R vector
+scans when the reference is not very big.
