@@ -26,7 +26,7 @@ read.bench <- function(filename){
   list(times=times, fread=dt, read.table=df)
 }
 
-site.list <- region.list <- coverage.list <- list()
+read.times.list <- site.list <- region.list <- coverage.list <- list()
 for(tf.name in c("max", "nrsf", "srf")){
 
   ## First read manually annotated peak regions.
@@ -110,18 +110,28 @@ for(tf.name in c("max", "nrsf", "srf")){
 
     full.strand.list <- list(both=bg.list$fread)
     full.strand.times <-
-      list(both=data.table(strand="both", bg.list$times))
+      list(both=data.table(strand="both",
+             rows=nrow(bg.list$fread), bg.list$times))
     for(strand in c("+", "-")){
       plus.file <- paste0(bg.file, strand, "strand")
       strand.list <- read.bench(plus.file)
       full.strand.list[[strand]] <- strand.list$fread
       full.strand.times[[strand]] <-
-        data.table(strand, strand.list$times)
+        data.table(strand, rows=nrow(strand.list$fread), strand.list$times)
     }
+    sample.times <- do.call(rbind, full.strand.times) %>%
+      mutate(seconds=time/1e9)
+    read.times.list[[bg.file]] <-
+      data.table(sample.id, tf.name, experiment, sample.times)
+    no.labels <-
+      ggplot()+
+      geom_point(aes(rows, seconds, color=expr),
+                 data=sample.times, pch=1)
 
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
+      ##TODO: benchmark foverlaps vs findOverlaps.
       one.join <- foverlaps(one.strand, windows) %>%
         filter(!is.na(chromStart))
       join.summary <- one.join %>%
