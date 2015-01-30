@@ -53,8 +53,20 @@
 \section{Benchmark timings on genomic data}
 
 \begin{frame}
-  \frametitle{fread}
+  \frametitle{data.table::fread faster than read.table for bedGraph
+    files}
   \includegraphics[width=\textwidth]{figure-TF-benchmark}
+
+  \texttt{read.table(file, sep=, colClasses=, nrows=)} vs
+  \texttt{fread(file)}
+\end{frame}
+
+\begin{frame}
+  \frametitle{data.table::foverlaps slower than
+    GenomicRanges::findOverlaps}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark-overlap}
+
+  Query is $\approx 450$ genomic windows.
 \end{frame}
 
 \end{document}
