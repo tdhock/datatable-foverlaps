@@ -139,10 +139,6 @@ for(tf.name in c("max", "nrsf", "srf")){
       mutate(seconds=time/1e9)
     read.times.list[[bg.file]] <-
       data.table(sample.id, tf.name, experiment, sample.times)
-    no.labels <-
-      ggplot()+
-      geom_point(aes(rows, seconds, color=expr),
-                 data=sample.times, pch=1)
 
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
@@ -181,21 +177,12 @@ for(tf.name in c("max", "nrsf", "srf")){
                    subject.rows=nrow(windows),
                    overlap.rows=nrow(one.join),
                    rbind(times, times2))
-      join.summary <- one.join %>%
-        group_by(region.index) %>%
-        summarise(segs=n())
-      stopifnot(join.summary$segs > 1)
-      coverage.list[[paste(tf.name, sample.id, experiment, strand)]] <-
-        data.frame(tf.name, sample.id, experiment, strand, one.join)
     }
   }
-
-  region.list[[tf.name]] <- pos.neg.regions
-  site.list[[tf.name]] <- data.frame(tf.name, nrsf.sites)
 }
 
 TF.benchmark <-
-  list(overlap=do.call(rbind, overlap.times.list)
+  list(overlap=do.call(rbind, overlap.times.list),
        read=do.call(rbind, read.times.list))
 
 save(TF.benchmark, file="TF.benchmark.RData")

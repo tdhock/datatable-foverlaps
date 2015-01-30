@@ -1,0 +1,60 @@
+\documentclass{beamer}
+\usepackage{tikz}
+\usepackage[all]{xy}
+\usepackage{listings}
+\usepackage{slashbox}
+%\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{hyperref}
+\usepackage{graphicx}
+
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\Lik}{Lik}
+\DeclareMathOperator*{\Peaks}{Peaks}
+\DeclareMathOperator*{\Segments}{Segments}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\DeclareMathOperator*{\maximize}{maximize}
+\DeclareMathOperator*{\minimize}{minimize}
+\newcommand{\sign}{\operatorname{sign}}
+\newcommand{\RR}{\mathbb R}
+\newcommand{\ZZ}{\mathbb Z}
+\newcommand{\NN}{\mathbb N}
+
+% Set transparency of non-highlighted sections in the table of
+% contents slide.
+\setbeamertemplate{section in toc shaded}[default][100]
+\AtBeginSection[]
+{
+  \setbeamercolor{section in toc}{fg=red} 
+  \setbeamercolor{section in toc shaded}{fg=black} 
+  \begin{frame}
+    \tableofcontents[currentsection]
+  \end{frame}
+}
+
+\begin{document}
+
+\title{Is R package \texttt{data.table} really so fast?} 
+
+\author{
+  Toby Dylan Hocking\\
+  toby.hocking@mail.mcgill.ca}
+
+\date{12 February 2015}
+
+\maketitle
+
+\section{What is data.table?}
+
+\begin{frame}
+  \frametitle{data.table is an enhanced data.frame}
+\end{frame}
+
+\section{Benchmark timings on genomic data}
+
+\begin{frame}
+  \frametitle{fread}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark}
+\end{frame}
+
+\end{document}
