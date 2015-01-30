@@ -1,5 +1,6 @@
 works_with_R("3.1.2",
              dplyr="0.4.0",
+             "hadley/tidyr@3de52c46f12d0d4cba603aa4e63e39f2370a9cfd",
              "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
              directlabels="2014.6.13",
              "tdhock/ggplot2@aac38b6c48c016c88123208d497d896864e74bd7")
@@ -10,8 +11,11 @@ load("TF.benchmark.RData")
 minutes.wide <-
   data.frame(query.rows=c(80e6, 65e6),
              subject.rows=c(33e3, 36e3),
-             foverlaps=c(2, 4),
-             findOverlaps=c(16, 28* 24))
+             `data.table::foverlaps`=c(2, 4),
+             `GenomicRanges::findOverlaps`=c(16, 28* 24),
+             check.names=FALSE)
+minutes.tall <- 
+gather(minutes.wide, method, minutes, -c(query.rows, subject.rows))
 
 refs <-
   data.table(unit=c("1 second"),
@@ -39,6 +43,12 @@ with.labels <-
              data=ov, pch=1)+
   xlab("rows in bedGraph file")+
   guides(color="none")
+
+with.labels+
+  geom_point(aes(query.rows, minutes*60, color=method),
+             data=minutes.tall)+
+  scale_y_log10()+
+  scale_x_log10()
 
 pdf("figure-TF-benchmark-overlap.pdf", 5, 3)
 print(with.labels)
