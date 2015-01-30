@@ -1,4 +1,5 @@
 works_with_R("3.1.2",
+             GenomicRanges="1.16.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
              "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
@@ -11,6 +12,19 @@ colClasses <-
     "chromEnd"="integer",
     "count"="integer")
 
+## Use the *nix wc program to quickly determine the number of lines
+## of a file.
+wc <- function(f){
+  stopifnot(is.character(f))
+  stopifnot(length(f)==1)
+  if(file.exists(f)){
+    cmd <- sprintf("wc -l '%s'",f)
+    as.integer(sub(" .*","",system(cmd,intern=TRUE)))
+  }else{
+    0L
+  }
+}
+
 read.bench <- function(filename){
   times <- microbenchmark(fread={
     dt <- fread(filename)
@@ -19,6 +33,7 @@ read.bench <- function(filename){
   }, read.table={
     df <-
       read.table(filename,
+                 sep="\t",
                  colClasses = as.character(colClasses),
                  nrows = wc(filename))
   }, times=2)
@@ -26,7 +41,8 @@ read.bench <- function(filename){
   list(times=times, fread=dt, read.table=df)
 }
 
-read.times.list <- site.list <- region.list <- coverage.list <- list()
+overlap.times.list <- read.times.list <-
+  site.list <- region.list <- coverage.list <- list()
 for(tf.name in c("max", "nrsf", "srf")){
 
   ## First read manually annotated peak regions.
@@ -131,9 +147,40 @@ for(tf.name in c("max", "nrsf", "srf")){
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
-      ##TODO: benchmark foverlaps vs findOverlaps.
-      one.join <- foverlaps(one.strand, windows) %>%
-        filter(!is.na(chromStart))
+      big.gr <- with(one.strand, GRanges(chrom, IRanges(chromStart, chromEnd)))
+      small.gr <- with(windows, GRanges(chrom, IRanges(chromStart, chromEnd)))
+      times <- microbenchmark(`GenomicRanges::findOverlaps.indices`={
+        hits.gr <- findOverlaps(big.gr, small.gr)
+      }, `data.table::foverlaps`={
+        hits.dt <- foverlaps(one.strand, windows, nomatch=0L, which=TRUE)
+      }, times=2)
+      stopifnot(length(hits.gr) == nrow(hits.dt))
+      stopifnot(queryHits(hits.gr) == hits.dt$xid)
+      stopifnot(subjectHits(hits.gr) == hits.dt$yid)
+      times2 <- microbenchmark(`GenomicRanges::findOverlaps.tables`={
+        big.gr <- with(one.strand, {
+          GRanges(chrom, IRanges(chromStart, chromEnd))
+        })
+        small.gr <- with(windows, {
+          GRanges(chrom, IRanges(chromStart, chromEnd))
+        })
+        hits.gr <- findOverlaps(big.gr, small.gr)
+        df.join <- 
+          cbind(as.data.frame(big.gr[queryHits(hits.gr), ]),
+                as.data.frame(small.gr[subjectHits(hits.gr), ]))
+      }, `data.table::foverlaps`={
+        one.join <- foverlaps(one.strand, windows, nomatch=0L)
+      }, times=2)
+      stopifnot(nrow(one.join) == nrow(df.join))
+      stopifnot(one.join$chrom == df.join$seqnames)
+      stopifnot(one.join$chromStart == df.join$chromStart)
+      stopifnot(one.join$chromEnd == df.join$chromEnd)
+      overlap.times.list[[paste(bg.file, strand)]] <-
+        data.table(sample.id, tf.name, experiment, strand,
+                   query.rows=nrow(one.strand),
+                   subject.rows=nrow(windows),
+                   overlap.rows=nrow(one.join),
+                   rbind(times, times2))
       join.summary <- one.join %>%
         group_by(region.index) %>%
         summarise(segs=n())
@@ -147,19 +194,8 @@ for(tf.name in c("max", "nrsf", "srf")){
   site.list[[tf.name]] <- data.frame(tf.name, nrsf.sites)
 }
 
-site.list2 <- list()
-region.list2 <- list()
-for(tf.name in names(site.list)){
-  site.list2[[tf.name]] <- site.list[[tf.name]] %>%
-    select(tf.name, region.index, chrom, chromStart, chromEnd, classification)
-  region.list2[[tf.name]] <- region.list[[tf.name]] %>%
-    select(tf.name, region.index, chrom, chromStart, chromEnd, annotation)
-}
-
 TF.benchmark <-
-  list(regions=do.call(rbind, region.list2),
-       sites=do.call(rbind, site.list2),
-       coverage=do.call(rbind, coverage.list))
-sapply(TF.benchmark, names)
+  list(overlap=do.call(rbind, overlap.times.list)
+       read=do.call(rbind, read.times.list))
 
 save(TF.benchmark, file="TF.benchmark.RData")
