@@ -54,7 +54,6 @@ pdf("figure-TF-benchmark-overlap.pdf", 5, 3)
 print(with.labels)
 dev.off()
 
-
 refs <-
   data.table(unit=c("1 second", "1 minute"),
              seconds=c(1, 60),

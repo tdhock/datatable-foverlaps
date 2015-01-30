@@ -69,4 +69,20 @@
   Query is $\approx 450$ genomic windows.
 \end{frame}
 
+\begin{frame}
+  \frametitle{bedtools is very slow}
+  % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{Conclusions}
+  For large ($\approx$ 10 million lines) genomic data files,
+  \begin{itemize}
+  \item bedtools intersect is really slow (minutes).
+  \item read data files into R using data.table::fread (seconds).
+  \item for intersection use GenomicRanges::findOverlaps (seconds).
+  \end{itemize}
+\end{frame}
+
 \end{document}
