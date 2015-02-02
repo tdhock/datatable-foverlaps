@@ -69,9 +69,37 @@
   Query is $\approx 450$ genomic windows.
 \end{frame}
 
-\begin{frame}
-  \frametitle{bedtools is very slow}
+\begin{frame}[fragile]
+  \frametitle{bedtools is much slower}
   % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
+% \begin{verbatim}
+% thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
+
+% real	154m10.653s
+% user	153m2.188s
+% sys	0m20.204s
+% thocking@silene:~/R/datatable-foverlaps(master)$ wc -l max-windows.bed  /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand 
+%       413 max-windows.bed
+%   7617673 /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand
+% \end{verbatim}
+\begin{verbatim}
+$ time intersectBed -a windows.bed \
+ -b chip-seq.bedGraph -sorted > overlap.bedGraph
+
+real	154m10.653s
+user	153m2.188s
+sys	0m20.204s
+$ wc -l windows.bed chip-seq.bedGraph overlap.bedGraph 
+      413 windows.bed
+  7617673 chip-seq.bedGraph
+    47840 overlap.bedGraph
+\end{verbatim}
+
+% thocking@silene:~/R/datatable-foverlaps(master*)$ du -ms max-windows.bed  /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand overlap.bedGraph 
+% 1	max-windows.bed
+% 189	/home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand
+% 2	overlap.bedGraph
+
   
 \end{frame}
 

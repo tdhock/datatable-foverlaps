@@ -140,6 +140,8 @@ for(tf.name in c("max", "nrsf", "srf")){
     read.times.list[[bg.file]] <-
       data.table(sample.id, tf.name, experiment, sample.times)
 
+    ##save(full.strand.list, windows, file="full.strand.list.RData")
+
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
