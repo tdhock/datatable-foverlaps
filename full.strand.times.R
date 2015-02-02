@@ -146,6 +146,9 @@ for(strand in names(full.strand.list)){
   }
   diff.list <- list()
   for(region.name in names(region.list)){
+    ## TODO: make an N x 2 matrix where N is the number of bases in
+    ## this region, and see if there are any differences between the
+    ## two columns.
     dt.list <- region.list[[region.name]]
     dt.rows <- sapply(dt.list, nrow)
     size.1 <- nrow(dt.list[[1]])
