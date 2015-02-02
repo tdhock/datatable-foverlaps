@@ -17,19 +17,29 @@ ggplot()+
   geom_point(aes(chipseq.rows, time/1e9, color=expr),
              data=full.strand.times, pch=1)
 
+levs <-
+  c("intersectBed",
+    "data.table::foverlaps",
+    "GenomicRanges::findOverlaps",
+    "data.table::foverlaps\nwindows.read",
+    "GenomicRanges::findOverlaps\nwindows.read")
 times <- full.strand.times %>%
   arrange(chipseq.rows, expr) %>%
   mutate(expr.fac=reorder(expr, time),
-         seconds=time/1e9)
+         expr.chr=sub(".windows.read", "\nwindows.read", expr),
+         expr.fac2=factor(expr.chr, levs),
+         seconds=time/1e9,
+         size=sprintf("%.3f", chipseq.rows/1e6))
 mean.times <- times %>%
   group_by(strand, expr) %>%
   summarise(mean=mean(seconds))
 dcast(mean.times, expr ~ strand)
 
-dots <- ggplot()+
+dots <-
+  ggplot()+
   scale_x_log10("seconds")+
-  geom_point(aes(seconds, expr.fac), data=times, pch=1)+
-  facet_grid(. ~ strand)+
+  geom_point(aes(seconds, expr.fac2), data=times, pch=1)+
+  facet_grid(. ~ size, labeller=label_both)+
   theme_bw()+
   theme(panel.margin=grid::unit(0, "cm"))
 
