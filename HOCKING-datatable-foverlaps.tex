@@ -69,8 +69,16 @@
   Query is $\approx 450$ genomic windows.
 \end{frame}
 
+\begin{frame}
+  \frametitle{data.table::foverlaps slower than
+    GenomicRanges::findOverlaps}
+  \includegraphics[width=\textwidth]{figure-full-strand-times}
+
+  Query is $\approx 450$ genomic windows.
+\end{frame}
+
 \begin{frame}[fragile]
-  \frametitle{bedtools is much slower}
+  \frametitle{bedtools is (much?) slower}
   % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
 % \begin{verbatim}
 % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph

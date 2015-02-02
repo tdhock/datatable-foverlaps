@@ -84,6 +84,12 @@ for(strand in names(full.strand.list)){
     system(cmd)
   }, times=5)
   print(times)
+  time.list[[strand]] <-
+    data.table(times,
+               chipseq.rows=nrow(chipseq),
+               windows.rows=nrow(windows),
+               overlap.rows=nrow(overlap.chipseq),
+               strand)
   
   stopifnot(nrow(overlap.dt) == nrow(overlap.chipseq))
   stopifnot(overlap.dt$chrom == overlap.chipseq$seqnames)
@@ -95,3 +101,7 @@ for(strand in names(full.strand.list)){
   stopifnot(overlap.dt$chromStart == overlap.windows$start)
   stopifnot(overlap.dt$chromEnd == overlap.windows$end)
 }
+
+full.strand.times <- do.call(rbind, time.list)
+
+save(full.strand.times, file="full.strand.times.RData")
