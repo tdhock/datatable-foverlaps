@@ -41,6 +41,11 @@ read.bench <- function(filename){
   list(times=times, fread=dt, read.table=df)
 }
 
+## This is the largest data set that we consider.
+tf.name <- "nrsf"
+bg.file <- "/home/thocking/genomecov/nrsf/huds_k562_rep2.bedGraph"
+strand <- "both"
+
 overlap.times.list <- read.times.list <-
   site.list <- region.list <- coverage.list <- list()
 for(tf.name in c("max", "nrsf", "srf")){
@@ -148,8 +153,12 @@ for(tf.name in c("max", "nrsf", "srf")){
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
-      big.gr <- with(one.strand, GRanges(chrom, IRanges(chromStart, chromEnd)))
-      small.gr <- with(windows, GRanges(chrom, IRanges(chromStart, chromEnd)))
+      big.gr <- with(one.strand, {
+        GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
+      })
+      small.gr <- with(windows, {
+        GRanges(chrom, IRanges(chromStart, chromEnd))
+      })
       times.indices <- microbenchmark(`GenomicRanges::findOverlaps`={
         hits.gr <- findOverlaps(big.gr, small.gr)
       }, `data.table::foverlaps`={
@@ -161,7 +170,7 @@ for(tf.name in c("max", "nrsf", "srf")){
       
       times.tables <- microbenchmark(`GenomicRanges::findOverlaps`={
         big.gr <- with(one.strand, {
-          GRanges(chrom, IRanges(chromStart, chromEnd))
+          GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
         })
         small.gr <- with(windows, {
           GRanges(chrom, IRanges(chromStart, chromEnd))
@@ -177,6 +186,7 @@ for(tf.name in c("max", "nrsf", "srf")){
       stopifnot(one.join$chrom == df.join$seqnames)
       stopifnot(one.join$chromStart == df.join$chromStart)
       stopifnot(one.join$chromEnd == df.join$chromEnd)
+      stopifnot(one.join$count == df.join$coverage)
 
       write.table(one.strand, "chipseq.bedGraph",
                   quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)

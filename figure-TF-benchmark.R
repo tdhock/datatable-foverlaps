@@ -53,6 +53,9 @@ with.labels+
   scale_y_log10()+
   scale_x_log10()
 
+ov %>%
+  filter(query.rows==max(query.rows))
+
 ov.list <- split(ov, ov$what)
 for(comparison in names(ov.list)){
   o <- ov.list[[comparison]]
