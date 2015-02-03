@@ -184,8 +184,11 @@ for(tf.name in c("max", "nrsf", "srf")){
       write.table(windows.bed, "windows.bed",
                   quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
       cmd <- "intersectBed -wa -wb -a windows.bed -b chipseq.bedGraph > overlap.bedGraph"
+      R.cmd <- "R --no-save --args chipseq.bedGraph windows.bed overlap-startup.bedGraph < intersect.R"
       times.IO <- microbenchmark(intersectBed={
         system(cmd)
+      }, startup.fread.foverlaps.write={
+        system(R.cmd)
       }, fread.foverlaps.write={
         ## Is intersectBed slower simply because it needs to read/write
         ## the files from/to disk? Try read/write in R to compare.
@@ -199,7 +202,7 @@ for(tf.name in c("max", "nrsf", "srf")){
         write.table(ODT, file="overlap-R.bedGraph",
                     quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
       }, times=2)
-      system("wc -l overlap-R.bedGraph overlap.bedGraph")
+      system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")
 
       meta <- 
         data.table(sample.id, tf.name, experiment, strand,
