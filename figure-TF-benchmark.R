@@ -23,26 +23,29 @@ refs <-
              vjust=c(-0.5))
 
 ov <- TF.benchmark$overlap %>%
-  mutate(result=rep(c("indices", "tables"), each=4),
-         method=sub(".tables|indices$", "", expr)) %>%
-  filter(result == "tables")
-stopifnot(nrow(ov) == nrow(TF.benchmark$overlap)/2)
+  mutate(method=expr)
 
 overlab.df <-
   data.table(rows=3.5e7,
              method=c("GenomicRanges::findOverlaps", "data.table::foverlaps"),
              seconds=c(6.5, 15))
+
 with.labels <- 
   ggplot()+
-  geom_text(aes(rows, seconds, label=method, color=method),
-            data=overlab.df, size=3)+
-  geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
-  geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
-            data=refs, color="grey50", size=3)+
+  ## geom_text(aes(rows, seconds, label=method, color=method),
+  ##           data=overlab.df, size=3)+
+  ##geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
+  ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
+  ##           data=refs, color="grey50", size=3)+
   geom_point(aes(query.rows, time/1e9, color=method),
              data=ov, pch=1)+
   xlab("rows in bedGraph file")+
-  guides(color="none")
+  guides(color="none")+
+  theme_bw()+
+  scale_y_continuous("seconds")+
+  theme(panel.margin=grid::unit(0, "cm"))+
+  facet_grid(what ~ ., scales="free")
+direct.label(with.labels, "last.qp")
 
 with.labels+
   geom_point(aes(query.rows, minutes*60, color=method),
@@ -50,9 +53,39 @@ with.labels+
   scale_y_log10()+
   scale_x_log10()
 
-pdf("figure-TF-benchmark-overlap.pdf", 5, 3)
-print(with.labels)
-dev.off()
+ov.list <- split(ov, ov$what)
+for(comparison in names(ov.list)){
+  o <- ov.list[[comparison]]
+  rows.lab <- mean(sort(unique(o$query.rows), decreasing=TRUE)[1:2])
+  expr.list <- split(o, o$expr, drop=TRUE)
+  lab.list <- list()
+  for(expr in names(expr.list)){
+    seconds <- with(expr.list[[expr]], {
+      approx(query.rows, time, rows.lab)$y
+    })/1e9
+    lab.list[[expr]] <- data.table(method=expr, rows=rows.lab, seconds)
+  }
+  overlab.df <- do.call(rbind, lab.list)
+
+  with.labels <- 
+  ggplot()+
+  geom_text(aes(rows, seconds, label=method, color=method),
+            data=overlab.df, size=3)+
+  ##geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
+  ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
+  ##           data=refs, color="grey50", size=3)+
+  geom_point(aes(query.rows, time/1e9, color=method),
+             data=o, pch=1)+
+  xlab("rows in bedGraph file")+
+  guides(color="none")+
+  theme_grey()+
+  scale_y_continuous("seconds")
+
+  pdf.name <- sprintf("figure-TF-benchmark-%s.pdf", comparison)
+  pdf(pdf.name, 5, 3)
+  print(with.labels)
+  dev.off()
+}  
 
 refs <-
   data.table(unit=c("1 second", "1 minute"),

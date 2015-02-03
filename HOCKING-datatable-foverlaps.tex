@@ -47,7 +47,58 @@
 \section{What is data.table?}
 
 \begin{frame}
+  \frametitle{Brief history of statistical computing}
+  \begin{description}
+  \item[1957] FORTRAN by John Backus (IBM).
+  %\item[1966] SAS (North Carolina State Univ).
+  \item[1976] S by John M Chambers (Bell Labs).
+  %\item[1988] ``New S'' much rewritten in C.
+  \item[1993] S exclusively licensed to StatSci/MathSoft.\\
+    R by Ross Ihaka and Robert Gentleman\\
+    (Univ Auckland, New Zealand).
+  \item[1998] Association of Computing Machinery 
+    Software System award
+    to John M Chambers for
+  \end{description}
+  ``the S system, which has forever altered the way people analyze,
+  visualize, and manipulate data.''
+  
+  \vskip 0.5cm Source: Wikipedia, R-FAQ.
+\end{frame}
+
+\begin{frame}
+  \frametitle{R = interactive, graphical, programming with data}
+  
+  What is R? (Source: R-FAQ)
+
+  ``R is a system for statistical computation and graphics. It
+  consists of a language plus a run-time environment with graphics, a
+  debugger, access to certain system functions, and the ability to run
+  programs stored in script files.'' 
+
+  \begin{description}
+  \item[interactive] command line (versus compiled).
+  \item[graphical] publication-quality plots.
+  \item[programming with data] \texttt{data.frame} which represents a
+    tabular data set.
+  \end{description}
+\end{frame}
+
+\begin{frame}[fragile]
   \frametitle{data.table is an enhanced data.frame}
+
+\begin{verbatim}
+Author: M Dowle, T Short, S Lianoglou, A Srinivasan 
+ with contributions from R Saporta, E Antonyan
+Description: Fast aggregation of large data
+ (e.g. 100GB in RAM), fast ordered joins, 
+ fast add/modify/delete of columns 
+ by group using no copies at all, 
+ list columns and a fast file reader (fread). 
+ Offers a natural and flexible syntax, 
+ for faster development.
+\end{verbatim}
+
 \end{frame}
 
 \section{Benchmark timings on genomic data}
@@ -62,9 +113,22 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{data.table::foverlaps slower than
-    GenomicRanges::findOverlaps}
-  \includegraphics[width=\textwidth]{figure-TF-benchmark-overlap}
+  \frametitle{compute matching indices}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark-indices}
+
+  $\approx 450$ genomic windows.
+\end{frame}
+
+\begin{frame}
+  \frametitle{compute joined tables}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark-tables}
+
+  $\approx 450$ genomic windows.
+\end{frame}
+
+\begin{frame}
+  \frametitle{read, overlap, write}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark-IO}
 
   $\approx 450$ genomic windows.
 \end{frame}
@@ -120,6 +184,13 @@ $ wc -l windows.bed chip-seq.bedGraph overlap.bedGraph
   \item \texttt{data.table::foverlaps} faster than
     \texttt{GenomicRanges::findOverlaps}.
   \item \texttt{bedtools intersect} is slower than R.
+  \end{itemize}
+
+  Caveats:
+  \begin{itemize}
+  \item \texttt{data.table::fread} can't read gzip compressed files.
+  \item \texttt{data.table::foverlaps} fastest with matching types
+    (integer $\neq$ numeric).
   \end{itemize}
 \end{frame}
 
