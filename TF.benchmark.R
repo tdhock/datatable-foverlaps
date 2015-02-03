@@ -202,14 +202,14 @@ for(tf.name in c("max", "nrsf", "srf")){
       }, fread.foverlaps.write={
         ## Is intersectBed slower simply because it needs to read/write
         ## the files from/to disk? Try read/write in R to compare.
-        CSR <- fread("chipseq.bedGraph")
-        setnames(CSR, c("chrom", "chromStart", "chromEnd", "coverage"))
-        setkey(CSR, chrom, chromStart, chromEnd)
-        WR <- fread("windows.bed")
-        setnames(WR, c("chrom", "chromStart", "chromEnd"))
-        setkey(WR, chrom, chromStart, chromEnd)
-        ODT <- foverlaps(CSR, WR, nomatch=0L)
-        write.table(ODT, file="overlap-R.bedGraph",
+        one.strand <- fread("chipseq.bedGraph")
+        setnames(one.strand, c("chrom", "chromStart", "chromEnd", "coverage"))
+        setkey(one.strand, chrom, chromStart, chromEnd)
+        windows <- fread("windows.bed")
+        setnames(windows, c("chrom", "chromStart", "chromEnd"))
+        setkey(windows, chrom, chromStart, chromEnd)
+        one.join <- foverlaps(one.strand, windows, nomatch=0L)
+        write.table(one.join, file="overlap-R.bedGraph",
                     quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
       }, times=2)
       system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")

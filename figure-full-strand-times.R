@@ -6,6 +6,11 @@ works_with_R("3.1.2",
 
 load("full.strand.times.RData")
 
+full.strand.times %>%
+  mutate(seconds=time/1e9) %>%
+  select(expr, strand, chipseq.rows, seconds) %>%
+  arrange(chipseq.rows, expr)
+
 ggplot()+
   geom_point(aes(time/1e9, expr), data=full.strand.times)+
   facet_grid(. ~ strand)+
