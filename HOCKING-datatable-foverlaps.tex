@@ -79,7 +79,7 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{bedtools is (much?) slower}
+  \frametitle{intersectBed -sorted is much slower}
   % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
 % \begin{verbatim}
 % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
@@ -113,13 +113,24 @@ $ wc -l windows.bed chip-seq.bedGraph overlap.bedGraph
 \end{frame}
 
 \begin{frame}
-  \frametitle{Conclusions}
+  \frametitle{Conclusion: data.table really is fast!}
   For large ($\approx$ 10 million lines) genomic data files,
   \begin{itemize}
-  \item bedtools intersect is really slow (minutes).
-  \item read data files into R using data.table::fread (seconds).
-  \item for intersection use GenomicRanges::findOverlaps (seconds).
+  \item \texttt{data.table::fread} faster than \texttt{read.table}.
+  \item \texttt{data.table::foverlaps} faster than
+    \texttt{GenomicRanges::findOverlaps}.
+  \item \texttt{bedtools intersect} is slower than R.
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Thanks for your attention!}
+  Any questions? \texttt{toby.hocking@mail.mcgill.ca}
+
+  \vskip 1cm
+
+  Source code for benchmarks is at
+  \url{https://github.com/tdhock/datatable-foverlaps}
 \end{frame}
 
 \end{document}
