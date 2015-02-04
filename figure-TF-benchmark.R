@@ -23,7 +23,9 @@ refs <-
              vjust=c(-0.5))
 
 ov <- TF.benchmark$overlap %>%
-  mutate(method=expr)
+  mutate(method=expr,
+         seconds=time/1e9) %>%
+  filter(seconds < 100)
 
 overlab.df <-
   data.table(rows=3.5e7,
@@ -37,7 +39,7 @@ with.labels <-
   ##geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
   ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
   ##           data=refs, color="grey50", size=3)+
-  geom_point(aes(query.rows, time/1e9, color=method),
+  geom_point(aes(query.rows, seconds, color=method),
              data=ov, pch=1)+
   xlab("rows in bedGraph file")+
   guides(color="none")+
@@ -64,8 +66,8 @@ for(comparison in names(ov.list)){
   lab.list <- list()
   for(expr in names(expr.list)){
     seconds <- with(expr.list[[expr]], {
-      approx(query.rows, time, rows.lab)$y
-    })/1e9
+      approx(query.rows, seconds, rows.lab)$y
+    })
     lab.list[[expr]] <- data.table(method=expr, rows=rows.lab, seconds)
   }
   overlab.df <- do.call(rbind, lab.list)
@@ -77,7 +79,7 @@ for(comparison in names(ov.list)){
   ##geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
   ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
   ##           data=refs, color="grey50", size=3)+
-  geom_point(aes(query.rows, time/1e9, color=method),
+  geom_point(aes(query.rows, seconds, color=method),
              data=o, pch=1)+
   xlab("rows in bedGraph file")+
   guides(color="none")+

@@ -34,17 +34,40 @@
 
 \begin{document}
 
-\title{Is R package \texttt{data.table} really so fast?} 
+\title{Overlap Death Match!}
 
 \author{
   Toby Dylan Hocking\\
-  toby.hocking@mail.mcgill.ca}
+  toby.hocking@mail.mcgill.ca
+\vskip 0.5cm
+\parbox{2cm}{
+  \includegraphics[height=2.5cm]{bedtools} 
+}
+VS 
+\parbox{2cm}{
+  \centering
+  \includegraphics[height=2cm]{bioconductor}
+  \\
+  Bioconductor
+}
+VS
+\parbox{2cm}{
+  \centering
+  \includegraphics[height=2cm]{datatable} 
+  \\
+  data.table
+}
+% Main reference: data.table package on CRAN.\\
+% { \url{http://cran.rstudio.com/web/packages/data.table}}
+% (see vignettes datatable-intro.pdf and datatable-faq.pdf).
+}
 
 \date{12 February 2015}
 
 \maketitle
 
-\section{What is data.table?}
+
+\section{What is R and data.table?}
 
 \begin{frame}
   \frametitle{Brief history of statistical computing}
@@ -85,11 +108,47 @@
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{data.table is an enhanced data.frame}
+  \frametitle{data.table is ``just like a data.frame''}
 
 \begin{verbatim}
+Package: data.table
+Version: 1.0
+Date: 2006-04-12
+
+Author: Matt Dowle
+
+Title: Just like a data.frame but without rownames, 
+ up to 10 times faster, up to 10 times less memory
+
+\end{verbatim}
+
+% Description: This package does very little. 
+%  The only reason for its existence is that the white
+%  book specifies that data.frame must have rownames. 
+%  This package defines a new class data.table which 
+%  operates just like a data.frame, but uses up to 10 
+%  times less memory, and can be up to 10 times faster 
+%  to create (and copy). It also takes the opportunity 
+%  to allow subset() and with() like expressions inside 
+%  the []. Most of the code is copied from base functions 
+%  with the code manipulating row.names removed.
+
+
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{data.table is an ``extension of data.frame''}
+
+\begin{verbatim}
+Package: data.table
+Version: 1.9.4
+Date: 2014-10-02
+
 Author: M Dowle, T Short, S Lianoglou, A Srinivasan 
  with contributions from R Saporta, E Antonyan
+
+Title: Extension of data.frame
+
 Description: Fast aggregation of large data
  (e.g. 100GB in RAM), fast ordered joins, 
  fast add/modify/delete of columns 
@@ -100,6 +159,37 @@ Description: Fast aggregation of large data
 \end{verbatim}
 
 \end{frame}
+
+\begin{frame}
+  \frametitle{Demo in R}
+  
+  \begin{itemize}
+  \item \text{data.table()}
+  \end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{data.table supports overlap joins}
+
+data.table/README.md
+
+\begin{verbatim}
+Changes in v1.9.4 (on CRAN 2 Oct 2014)
+NEW FEATURES
+...
+Overlap joins (#528) is now here, finally!! 
+
+Except for type="equal" and maxgap and minoverlap 
+arguments, everything else is implemented. 
+
+Check out ?foverlaps and the examples there on its usage. 
+
+This is a major feature addition to data.table.
+\end{verbatim}
+
+\end{frame}
+
+
 
 \section{Benchmark timings on genomic data}
 

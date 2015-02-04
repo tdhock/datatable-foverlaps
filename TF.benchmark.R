@@ -1,5 +1,5 @@
 works_with_R("3.1.2",
-             GenomicRanges="1.16.4",
+             GenomicRanges="1.18.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
              "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
@@ -153,76 +153,78 @@ for(tf.name in c("max", "nrsf", "srf")){
     window.strand.list <- list()
     for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
-      big.gr <- with(one.strand, {
-        GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
-      })
-      small.gr <- with(windows, {
-        GRanges(chrom, IRanges(chromStart, chromEnd))
-      })
-      times.indices <- microbenchmark(`GenomicRanges::findOverlaps`={
-        hits.gr <- findOverlaps(big.gr, small.gr)
-      }, `data.table::foverlaps`={
-        hits.dt <- foverlaps(one.strand, windows, nomatch=0L, which=TRUE)
-      }, times=2)
-      stopifnot(length(hits.gr) == nrow(hits.dt))
-      stopifnot(queryHits(hits.gr) == hits.dt$xid)
-      stopifnot(subjectHits(hits.gr) == hits.dt$yid)
-      
-      times.tables <- microbenchmark(`GenomicRanges::findOverlaps`={
+      if(nrow(one.strand) < 4e7){
         big.gr <- with(one.strand, {
           GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
         })
         small.gr <- with(windows, {
           GRanges(chrom, IRanges(chromStart, chromEnd))
         })
-        hits.gr <- findOverlaps(big.gr, small.gr)
-        df.join <- 
-          cbind(as.data.frame(big.gr[queryHits(hits.gr), ]),
-                as.data.frame(small.gr[subjectHits(hits.gr), ]))
-      }, `data.table::foverlaps`={
-        one.join <- foverlaps(one.strand, windows, nomatch=0L)
-      }, times=2)
-      stopifnot(nrow(one.join) == nrow(df.join))
-      stopifnot(one.join$chrom == df.join$seqnames)
-      stopifnot(one.join$chromStart == df.join$chromStart)
-      stopifnot(one.join$chromEnd == df.join$chromEnd)
-      stopifnot(one.join$count == df.join$coverage)
+        times.indices <- microbenchmark(`GenomicRanges::findOverlaps`={
+          hits.gr <- findOverlaps(big.gr, small.gr)
+        }, `data.table::foverlaps`={
+          hits.dt <- foverlaps(one.strand, windows, nomatch=0L, which=TRUE)
+        }, times=2)
+        stopifnot(length(hits.gr) == nrow(hits.dt))
+        stopifnot(queryHits(hits.gr) == hits.dt$xid)
+        stopifnot(subjectHits(hits.gr) == hits.dt$yid)
+        
+        times.tables <- microbenchmark(`GenomicRanges::findOverlaps`={
+          big.gr <- with(one.strand, {
+            GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
+          })
+          small.gr <- with(windows, {
+            GRanges(chrom, IRanges(chromStart, chromEnd))
+          })
+          hits.gr <- findOverlaps(big.gr, small.gr)
+          df.join <- 
+            cbind(as.data.frame(big.gr[queryHits(hits.gr), ]),
+                  as.data.frame(small.gr[subjectHits(hits.gr), ]))
+        }, `data.table::foverlaps`={
+          one.join <- foverlaps(one.strand, windows, nomatch=0L)
+        }, times=2)
+        stopifnot(nrow(one.join) == nrow(df.join))
+        stopifnot(one.join$chrom == df.join$seqnames)
+        stopifnot(one.join$chromStart == df.join$chromStart)
+        stopifnot(one.join$chromEnd == df.join$chromEnd)
+        stopifnot(one.join$count == df.join$coverage)
 
-      write.table(one.strand, "chipseq.bedGraph",
-                  quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
-      windows.bed <- data.frame(windows)[, c("chrom", "chromStart", "chromEnd")]
-      write.table(windows.bed, "windows.bed",
-                  quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
-      cmd <- "intersectBed -wa -wb -a windows.bed -b chipseq.bedGraph > overlap.bedGraph"
-      R.cmd <- "R --no-save --args chipseq.bedGraph windows.bed overlap-startup.bedGraph < intersect.R"
-      times.IO <- microbenchmark(intersectBed={
-        system(cmd)
-      }, startup.fread.foverlaps.write={
-        system(R.cmd)
-      }, fread.foverlaps.write={
-        ## Is intersectBed slower simply because it needs to read/write
-        ## the files from/to disk? Try read/write in R to compare.
-        one.strand <- fread("chipseq.bedGraph")
-        setnames(one.strand, c("chrom", "chromStart", "chromEnd", "coverage"))
-        setkey(one.strand, chrom, chromStart, chromEnd)
-        windows <- fread("windows.bed")
-        setnames(windows, c("chrom", "chromStart", "chromEnd"))
-        setkey(windows, chrom, chromStart, chromEnd)
-        one.join <- foverlaps(one.strand, windows, nomatch=0L)
-        write.table(one.join, file="overlap-R.bedGraph",
+        write.table(one.strand, "chipseq.bedGraph",
                     quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
-      }, times=2)
-      system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")
+        windows.bed <- data.frame(windows)[, c("chrom", "chromStart", "chromEnd")]
+        write.table(windows.bed, "windows.bed",
+                    quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
+        cmd <- "intersectBed -wa -wb -a windows.bed -b chipseq.bedGraph > overlap.bedGraph"
+        R.cmd <- "R --no-save --args chipseq.bedGraph windows.bed overlap-startup.bedGraph < intersect.R"
+        times.IO <- microbenchmark(intersectBed={
+          system(cmd)
+        }, startup.fread.foverlaps.write={
+          system(R.cmd)
+        }, fread.foverlaps.write={
+          ## Is intersectBed slower simply because it needs to read/write
+          ## the files from/to disk? Try read/write in R to compare.
+          one.strand <- fread("chipseq.bedGraph")
+          setnames(one.strand, c("chrom", "chromStart", "chromEnd", "coverage"))
+          setkey(one.strand, chrom, chromStart, chromEnd)
+          windows <- fread("windows.bed")
+          setnames(windows, c("chrom", "chromStart", "chromEnd"))
+          setkey(windows, chrom, chromStart, chromEnd)
+          one.join <- foverlaps(one.strand, windows, nomatch=0L)
+          write.table(one.join, file="overlap-R.bedGraph",
+                      quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
+        }, times=2)
+        system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")
 
-      meta <- 
-        data.table(sample.id, tf.name, experiment, strand,
-                   query.rows=nrow(one.strand),
-                   subject.rows=nrow(windows),
-                   overlap.rows=nrow(one.join))
-      overlap.times.list[[paste(bg.file, strand)]] <-
-        rbind(data.table(meta, what="indices", times.tables),
-              data.table(meta, what="tables", times.indices),
-              data.table(meta, what="IO", times.IO))
+        meta <- 
+          data.table(sample.id, tf.name, experiment, strand,
+                     query.rows=nrow(one.strand),
+                     subject.rows=nrow(windows),
+                     overlap.rows=nrow(one.join))
+        overlap.times.list[[paste(bg.file, strand)]] <-
+          rbind(data.table(meta, what="indices", times.tables),
+                data.table(meta, what="tables", times.indices),
+                data.table(meta, what="IO", times.IO))
+      }
     }
   }
 }
