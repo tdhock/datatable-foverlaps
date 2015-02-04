@@ -2,7 +2,8 @@ works_with_R("3.1.2",
              GenomicRanges="1.18.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
+             data.table="1.9.4")
 
 downloads <- "http://tare.medisin.ntnu.no/chipseqbenchmark/downloads/"
 
@@ -244,8 +245,8 @@ for(tf.name in c("max", "nrsf", "srf")){
                    subject.rows=nrow(windows),
                    overlap.rows=nrow(one.join))
       overlap.times.list[[paste(bg.file, strand)]] <-
-        rbind(data.table(meta, what="indices", times.tables),
-              data.table(meta, what="tables", times.indices),
+        rbind(data.table(meta, what="tables", times.tables),
+              data.table(meta, what="indices", times.indices),
               data.table(meta, what="IO", times.IO))
     ##}#strand
   }#bg.file.i

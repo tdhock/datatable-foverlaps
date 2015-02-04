@@ -1,6 +1,12 @@
-Benchmarking foverlaps
+Overlap Death Match!
 
-When is data.table::foverlaps faster than conventional R packages?
+Intersect/overlap of genomic data (possibly from bed/bedGraph files)
+is implemented by
 
-piecewise.constant.R shows that foverlaps is slower than R vector
-scans when the reference is not very big.
+- [[https://github.com/Rdatatable/data.table][data.table::foverlaps]] in R.
+- [[http://www.bioconductor.org/packages/release/bioc/html/GenomicRanges.html][GenomicRanges::findOverlaps]] in R.
+- [[https://github.com/arq5x/bedtools2][bedtools intersect]] command line program.
+
+Which of these packages is fastest?
+
+Do they all give the same results?

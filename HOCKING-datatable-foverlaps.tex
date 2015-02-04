@@ -74,7 +74,9 @@ VS
   \begin{description}
   \item[1957] FORTRAN by John Backus (IBM).
   %\item[1966] SAS (North Carolina State Univ).
+  \item[1972] C by Dennis Ritchie (Bell Labs).
   \item[1976] S by John M Chambers (Bell Labs).
+  \item[1983] C++ by Bjarne Stroustrup (Bell Labs).
   %\item[1988] ``New S'' much rewritten in C.
   \item[1993] S exclusively licensed to StatSci/MathSoft.\\
     R by Ross Ihaka and Robert Gentleman\\
@@ -109,16 +111,20 @@ VS
 
 \begin{frame}
   \frametitle{Selected Bioconductor project history}
+
   \begin{tabular}{rrrll}
-    Version & Release & Packages & Depends & Firsts \\
+    Version & Release & Packages & Depends & Firsts/notes \\
     \hline
     1.0 & 1 May 2001 & 15 & R 1.5 \\
     %\vdots &     \vdots &     \vdots &     \vdots \\
     2.3 & 22 Oct 2008 & 294 & R 2.8 & IRanges\\
     2.5 & 28 Oct 2009 & 352 & R 2.10 & findOverlaps\\
     2.6 & 23 Apr 2010 & 389 & R 2.11 & GenomicRanges\\
-    3.0 & 14 Oct 2014 & 934 & R 3.1
+    3.0 & 14 Oct 2014 & 934 & R 3.1 & TESTED
   \end{tabular}
+
+  \includegraphics[height=2cm]{bioconductor} Bioconductor = R packages
+  with compiled C code.
 
   \vskip 1cm
 
@@ -148,6 +154,8 @@ Version 2.17.0   (3-Nov-2012)   TESTED guillimin
 Version 2.22.1   (1 Jan 2015)   TESTED github
 \end{verbatim}
 
+  \includegraphics[height=2cm]{bedtools} = command line C++ program.
+
 Source: bedtools \verb|RELEASE_HISTORY| file.
   
 \end{frame}
@@ -155,10 +163,11 @@ Source: bedtools \verb|RELEASE_HISTORY| file.
 \begin{frame}[fragile]
   \frametitle{data.table is ``just like a data.frame''}
 
+  \includegraphics[height=2cm]{datatable} 
+  data.table = an R package with compiled C code.
+
 \begin{verbatim}
-Package: data.table
-Version: 1.0
-Date: 2006-04-12
+Version: 1.0, 2006-04-12
 
 Author: Matt Dowle
 
@@ -184,10 +193,11 @@ Title: Just like a data.frame but without rownames,
 \begin{frame}[fragile]
   \frametitle{data.table is an ``extension of data.frame''}
 
+  \includegraphics[height=2cm]{datatable} 
+  data.table = an R package with compiled C code.
+
 \begin{verbatim}
-Package: data.table
-Version: 1.9.4
-Date: 2014-10-02
+Version: 1.9.4, 2014-10-02
 
 Author: M Dowle, T Short, S Lianoglou, A Srinivasan 
  with contributions from R Saporta, E Antonyan
@@ -198,10 +208,10 @@ Description: Fast aggregation of large data
  (e.g. 100GB in RAM), fast ordered joins, 
  fast add/modify/delete of columns 
  by group using no copies at all, 
- list columns and a fast file reader (fread). 
- Offers a natural and flexible syntax, 
- for faster development.
+ list columns and a fast file reader (fread)...
 \end{verbatim}
+ % Offers a natural and flexible syntax, 
+ % for faster development.
 
 \end{frame}
 
@@ -262,15 +272,24 @@ This is a major feature addition to data.table.
   \texttt{fread(file)}
 \end{frame}
 
-\begin{frame}
-  \frametitle{compute matching indices}
+\begin{frame}[fragile]
+  \frametitle{Only compute overlapping indices}
+\begin{verbatim}
+GenomicRanges::findOverlaps(bedGraph.gr, windows.gr)
+data.table::foverlaps(bedGraph.dt, windows.dt, 
+                      nomatch=0L, which=TRUE)
+\end{verbatim}
+
   \includegraphics[width=\textwidth]{figure-TF-benchmark-indices}
+
+  \vskip -0.5cm
 
   $\approx 450$ genomic windows.
 \end{frame}
 
 \begin{frame}
-  \frametitle{compute joined tables}
+  \frametitle{Start from data.frame, convert to GRanges/data.table,
+    compute overlapping indices, select data}
   \includegraphics[width=\textwidth]{figure-TF-benchmark-tables}
 
   $\approx 450$ genomic windows.
@@ -282,6 +301,13 @@ This is a major feature addition to data.table.
 
   $\approx 450$ genomic windows.
 \end{frame}
+
+% \begin{frame}
+%   \frametitle{read, overlap, write}
+%   \includegraphics[width=\textwidth]{figure-TF-benchmark-IO-log}
+
+%   $\approx 450$ genomic windows.
+% \end{frame}
 
 % \begin{frame}
 %   \frametitle{data.table::foverlaps slower than

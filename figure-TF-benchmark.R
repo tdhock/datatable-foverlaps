@@ -7,6 +7,8 @@ works_with_R("3.1.2",
 
 load("TF.benchmark.RData")
 
+over.end <- list(dl.trans(x=x+0.1), "last.qp")
+
 ## from https://github.com/Rdatatable/data.table/wiki/talks/EARL2014_OverlapRangeJoin_Arun.pdf
 minutes.wide <-
   data.frame(query.rows=c(80e6, 65e6),
@@ -22,8 +24,14 @@ refs <-
              seconds=c(1),
              vjust=c(-0.5))
 
+bed.labs <-
+  c("intersectBed-2.17.0"="intersectBed-2.17.0\nguillimin",
+    "intersectBed-2.14.3"="intersectBed-2.14.3\nubuntu",
+    "intersectBed-2.22.1"="intersectBed-2.22.1\ngithub")
 ov <- TF.benchmark$overlap %>%
-  mutate(method=expr,
+  mutate(method=ifelse(expr %in% names(bed.labs),
+           bed.labs[paste(expr)],
+           paste(expr)),
          seconds=time/1e9)
 
 overlab.df <-
@@ -46,7 +54,7 @@ with.labels <-
   scale_y_continuous("seconds")+
   theme(panel.margin=grid::unit(0, "cm"))+
   facet_grid(what ~ ., scales="free")
-direct.label(with.labels, "last.qp")
+direct.label(with.labels, "over.end")
 
 with.labels+
   geom_point(aes(query.rows, minutes*60, color=method),
@@ -88,11 +96,20 @@ for(comparison in names(ov.list)){
     geom_text(aes(rows, seconds, label=method, color=method),
               data=overlab.df, size=3)
 
-  dl <- direct.label(no.labels, "last.qp")
+  dl <- direct.label(no.labels, "over.end")
 
   pdf.name <- sprintf("figure-TF-benchmark-%s.pdf", comparison)
   pdf(pdf.name, 5, 3)
   print(dl)
+  dev.off()
+
+  dlog <-
+    dl+
+      scale_x_log10("rows in bedGraph file", limits=c(NA, 4e7))+
+      scale_y_log10()
+  log.pdf.name <- sprintf("figure-TF-benchmark-%s-log.pdf", comparison)
+  pdf(log.pdf.name, 5, 3)
+  print(dlog)
   dev.off()
 }  
 
@@ -108,16 +125,18 @@ lab.df <-
              seconds=c(10, 50))
 with.labels <-
   ggplot()+
-  geom_text(aes(rows, seconds, label=method, color=method),
-            data=lab.df, size=3)+
-  geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
-  geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
-            data=refs, color="grey50", size=3)+
+  ## geom_text(aes(rows, seconds, label=method, color=method),
+  ##           data=lab.df, size=3)+
+  ## geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
+  ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
+  ##           data=refs, color="grey50", size=3)+
   geom_point(aes(rows, time/1e9, color=method),
              data=read.times, pch=1)+
-  xlab("rows in bedGraph file")+
+  scale_x_continuous("rows in bedGraph file", limits=c(NA, 3.5e7))+
+  ylab("seconds")+
   guides(color="none")
+dl <- direct.label(with.labels, "over.end")
 
 pdf("figure-TF-benchmark.pdf", 5, 3)
-print(with.labels)
+print(dl)
 dev.off()
