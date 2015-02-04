@@ -24,8 +24,7 @@ refs <-
 
 ov <- TF.benchmark$overlap %>%
   mutate(method=expr,
-         seconds=time/1e9) %>%
-  filter(seconds < 100)
+         seconds=time/1e9)
 
 overlab.df <-
   data.table(rows=3.5e7,
@@ -72,23 +71,28 @@ for(comparison in names(ov.list)){
   }
   overlab.df <- do.call(rbind, lab.list)
 
-  with.labels <- 
+  no.labels <- 
   ggplot()+
-  geom_text(aes(rows, seconds, label=method, color=method),
-            data=overlab.df, size=3)+
   ##geom_hline(aes(yintercept=seconds), data=refs, color="grey50")+
   ## geom_text(aes(3.75e7, seconds, label=unit, vjust=vjust),
   ##           data=refs, color="grey50", size=3)+
   geom_point(aes(query.rows, seconds, color=method),
              data=o, pch=1)+
-  xlab("rows in bedGraph file")+
+  scale_x_continuous("rows in bedGraph file", limits=c(NA, 4e7))+
   guides(color="none")+
   theme_grey()+
   scale_y_continuous("seconds")
 
+  manual.labels <-
+    no.labels +
+    geom_text(aes(rows, seconds, label=method, color=method),
+              data=overlab.df, size=3)
+
+  dl <- direct.label(no.labels, "last.qp")
+
   pdf.name <- sprintf("figure-TF-benchmark-%s.pdf", comparison)
   pdf(pdf.name, 5, 3)
-  print(with.labels)
+  print(dl)
   dev.off()
 }  
 

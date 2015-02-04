@@ -255,6 +255,9 @@ This is a major feature addition to data.table.
 
 \begin{frame}[fragile]
   \frametitle{intersectBed -sorted is much slower}
+
+  ``-sorted Invoke a memory-efficient algorithm for very large files.''
+
   % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
 % \begin{verbatim}
 % thocking@silene:~/R/datatable-foverlaps(master*)$ time intersectBed -a max-windows.bed -b /home/thocking/genomecov/max/yale_k562_rep1.bedGraph-strand -sorted > overlap.bedGraph
