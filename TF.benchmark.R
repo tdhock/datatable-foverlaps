@@ -138,7 +138,7 @@ for(tf.name in c("max", "nrsf", "srf")){
              rows=nrow(bg.list$fread), bg.list$times))
     strand.files <- list(both=bg.file)
     for(strand in c("+", "-")){
-      plus.file <- strand.files[[plus.file]] <-
+      plus.file <- strand.files[[strand]] <-
         paste0(bg.file, strand, "strand")
       strand.list <- read.bench(plus.file)
       full.strand.list[[strand]] <- strand.list$fread
@@ -198,17 +198,25 @@ for(tf.name in c("max", "nrsf", "srf")){
                     quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
 
         strand.file <- strand.files[[strand]]
-        cmd <-
-          paste("intersectBed -wa -wb -a windows.bed -b",
-                strand.file,
-                "> overlap.bedGraph")
+        bedtools <- function(intersectBed){
+          cmd <- 
+            paste(intersectBed,
+                  "-wa -wb -a windows.bed -b",
+                  strand.file,
+                  "> overlap.bedGraph")
+          system(cmd)
+        }
         R.cmd <-
           paste("R --no-save --args",
                 strand.file,
                 "windows.bed overlap-startup.bedGraph < intersect.R")
         
-        times.IO <- microbenchmark(intersectBed={
-          system(cmd)
+        times.IO <- microbenchmark(`intersectBed-2.14.3`={
+          bedtools("/usr/bin/intersectBed")
+        }, `intersectBed-2.17.0`={
+          bedtools("bedtools-2.17.0/bin/intersectBed -sorted")
+        }, `intersectBed-2.22.1`={
+          bedtools("bedtools2/bin/intersectBed -sorted")
         }, startup.fread.foverlaps.write={
           system(R.cmd)
         }, fread.foverlaps.write={

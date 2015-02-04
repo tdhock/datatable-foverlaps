@@ -1,4 +1,4 @@
-HOCKING-datatable-foverlaps.pdf: HOCKING-datatable-foverlaps.tex figure-TF-benchmark.pdf figure-full-strand-times.pdf
+HOCKING-datatable-foverlaps.pdf: HOCKING-datatable-foverlaps.tex figure-TF-benchmark.pdf 
 	pdflatex HOCKING-datatable-foverlaps
 	pdflatex HOCKING-datatable-foverlaps
 piecewise.constant.RData: piecewise.constant.R
