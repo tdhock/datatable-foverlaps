@@ -22,7 +22,7 @@ GR_fun <- function(query, windows){
 }
 
 ## 4. DT_fun <- { … } # self contained function that runs foverlaps (or use setDT to convert from data.frame to data.table).
-require(data.table) #"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306"
+require(data.table) ###"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306"
 DT_fun <- function(query, windows){
   query.dt <- data.table(query)
   ##setkey(query.dt, chrom, chromStart, chromEnd)

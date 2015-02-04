@@ -2,7 +2,7 @@ works_with_R("3.1.2",
              GenomicRanges="1.18.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
-             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
+             ####"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
              data.table="1.9.4")
 
 downloads <- "http://tare.medisin.ntnu.no/chipseqbenchmark/downloads/"

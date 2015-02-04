@@ -1,6 +1,6 @@
 works_with_R("3.1.2",
              microbenchmark="1.3.0",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
 
 set.seed(1)
 for(n.breaks in c(1, 10, 100)){

@@ -1,5 +1,5 @@
 works_with_R("3.1.2",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
              dplyr="0.4.0",
              reshape2="1.2.2",
              "tdhock/ggplot2@aac38b6c48c016c88123208d497d896864e74bd7")

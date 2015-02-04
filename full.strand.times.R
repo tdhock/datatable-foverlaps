@@ -2,7 +2,7 @@ works_with_R("3.1.2",
              GenomicRanges="1.16.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
 
 RData.url <- "http://cbio.ensmp.fr/~thocking/data/full.strand.list.RData"
 if(!file.exists("full.strand.list.RData")){

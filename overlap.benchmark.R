@@ -2,7 +2,7 @@ works_with_R("3.1.2",
              GenomicRanges="1.16.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
 
 tgz.url <- "http://cbio.ensmp.fr/~thocking/data/overlap-benchmark.tgz"
 if(!file.exists(tgz <- "overlap-benchmark.tgz")){

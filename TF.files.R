@@ -1,7 +1,7 @@
 works_with_R("3.1.2",
              GenomicRanges="1.16.4",
              dplyr="0.4.0",
-             "Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
+             ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306")
 
 ## TODO: read bed/bedGraph files from disk and then write a bedGraph
 ## file to disk, compare fread+GenomicRanges to bedIntersect.

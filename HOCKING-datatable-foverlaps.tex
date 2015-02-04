@@ -258,6 +258,9 @@ This is a major feature addition to data.table.
     \hline
     Since & 2009 & 2009 & 2014 \\
     Language & C++ & R/C & R/C \\
+    Versions Tested & 2.14.3 & 3.0 & 1.9.4 \\
+     & 2.17.0 \\
+    & 2.22.1
   \end{tabular}
 \end{frame}
 
@@ -296,8 +299,15 @@ data.table::foverlaps(bedGraph.dt, windows.dt,
 \end{frame}
 
 \begin{frame}
-  \frametitle{read, overlap, write}
+  \frametitle{Read files, overlap, write file}
   \includegraphics[width=\textwidth]{figure-TF-benchmark-IO}
+
+  $\approx 450$ genomic windows.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Read files, overlap, write file}
+  \includegraphics[width=\textwidth]{figure-TF-benchmark-IO-some}
 
   $\approx 450$ genomic windows.
 \end{frame}
@@ -318,25 +328,6 @@ data.table::foverlaps(bedGraph.dt, windows.dt,
 
 % \end{frame}
 
-\begin{frame}
-  \frametitle{Conclusion: data.table really is fast!}
-  For large ($\approx$ 10 million lines) genomic data files,
-  \begin{itemize}
-  \item \texttt{data.table::fread} faster than \texttt{read.table}.
-  \item \texttt{data.table::foverlaps} vs
-    \texttt{GenomicRanges::findOverlaps}?
-  \item \texttt{bedtools intersect} vs R?
-  \end{itemize}
-
-  Package versions?
-
-  Caveats:
-  \begin{itemize}
-  \item \texttt{data.table::fread} can't read gzip compressed files.
-  \item \texttt{data.table::foverlaps} fastest with matching types
-    (integer $\neq$ numeric), no minoverlap/maxgap yet.
-  \end{itemize}
-\end{frame}
 
 %%%%% 2.14.3
 
@@ -394,7 +385,39 @@ data.table::foverlaps(bedGraph.dt, windows.dt,
 
 \section{Round 2: accuracy on genomic data}
 
-\section{Conclusions}
+\begin{frame}
+  \frametitle{data.table::foverlaps always gives the same result as
+    GenomicRanges::findOverlaps}
+
+    \includegraphics[height=2.5cm]{datatable} =
+    \includegraphics[height=2.5cm]{bioconductor} 
+  
+\end{frame}
+
+\begin{frame}
+  \frametitle{TODO plot when R is different from bedtools}
+  
+\end{frame}
+
+\section{And the champion is...}
+
+\begin{frame}
+  \frametitle{Most recent versions of all packages have similar
+    speeds}
+  +1 to
+  \begin{itemize}
+  \item \textbf{bedtools} for binary files (BAM).
+  \item \textbf{data.table} for \texttt{fread}\\
+    (read text files faster than \texttt{read.table}).
+  \item \textbf{bedtools} and \textbf{GenomicRanges::findOverlaps} 
+    for -f/minoverlap\\
+    (not yet implemented in \texttt{data.table::foverlaps}).
+  \item \textbf{GenomicRanges::findOverlaps} for maxgap \\
+    (not yet implemented in \texttt{data.table::foverlaps}).
+  \item XXX for accuracy.
+  \end{itemize}
+
+\end{frame}
 
 \begin{frame}
   \frametitle{Thanks for your attention!}
