@@ -67,7 +67,7 @@ VS
 \maketitle
 
 
-\section{What is R and data.table?}
+\section{The contenders}
 
 \begin{frame}
   \frametitle{Brief history of statistical computing}
@@ -147,6 +147,8 @@ Version 2.17.0   (3-Nov-2012)   TESTED guillimin
         ...
 Version 2.22.1   (1 Jan 2015)   TESTED github
 \end{verbatim}
+
+Source: bedtools \verb|RELEASE_HISTORY| file.
   
 \end{frame}
 
@@ -203,13 +205,13 @@ Description: Fast aggregation of large data
 
 \end{frame}
 
-\begin{frame}
-  \frametitle{Demo in R}
+% \begin{frame}
+%   \frametitle{Demo in R?}
   
-  \begin{itemize}
-  \item \text{data.table()}
-  \end{itemize}
-\end{frame}
+%   \begin{itemize}
+%   \item \text{data.table()}
+%   \end{itemize}
+% \end{frame}
 
 \begin{frame}[fragile]
   \frametitle{data.table supports overlap joins}
@@ -230,11 +232,26 @@ Check out ?foverlaps and the examples there on its usage.
 This is a major feature addition to data.table.
 \end{verbatim}
 
+\alert{\url{https://github.com/Rdatatable/data.table/wiki/talks/EARL2014_OverlapRangeJoin_Arun.pdf}}
+
 \end{frame}
 
+\begin{frame}
+  \frametitle{Summary of contenders}
+  
+  \begin{tabular}{cccc}
+    &
+    \includegraphics[height=2.5cm]{bedtools} &
+    \includegraphics[height=2.5cm]{bioconductor} &
+    \includegraphics[height=2.5cm]{datatable} \\
+    &  & Bioconductor & data.table \\
+    \hline
+    Since & 2009 & 2009 & 2014 \\
+    Language & C++ & R/C & R/C \\
+  \end{tabular}
+\end{frame}
 
-
-\section{Benchmark timings on genomic data}
+\section{Round 1: timings on genomic data}
 
 \begin{frame}
   \frametitle{data.table::fread faster than read.table for bedGraph
@@ -349,6 +366,9 @@ This is a major feature addition to data.table.
 %    110781 overlap.bedGraph
 %  21225146 total
 
+\section{Round 2: accuracy on genomic data}
+
+\section{Conclusions}
 
 \begin{frame}
   \frametitle{Thanks for your attention!}

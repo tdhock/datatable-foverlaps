@@ -44,7 +44,7 @@ read.bench <- function(filename){
 ## This is the largest data set that we consider.
 tf.name <- "nrsf"
 bg.file <- "/home/thocking/genomecov/nrsf/huds_k562_rep2.bedGraph"
-strand <- "both"
+strand <- "+"
 
 overlap.times.list <- read.times.list <-
   site.list <- region.list <- coverage.list <- list()
@@ -108,9 +108,9 @@ for(tf.name in c("max", "nrsf", "srf")){
               chromEnd=max(chromEnd)+expand.bases,
               sites=sum(what=="site"),
               regions=sum(what=="region"))
-  str(windows)
+  ##str(windows)
   windows[, chrom := as.character(chrom) ]
-  str(windows)
+  ##str(windows)
   setkey(windows, chrom, chromStart, chromEnd)
 
   ## Database of visual annotations.
@@ -130,21 +130,26 @@ for(tf.name in c("max", "nrsf", "srf")){
                 bg.file.i, length(bedgraph.files),
                 sample.id, experiment))
 
-    bg.list <- read.bench(bg.file)
 
-    full.strand.list <- list(both=bg.list$fread)
-    full.strand.times <-
-      list(both=data.table(strand="both",
-             rows=nrow(bg.list$fread), bg.list$times))
+    full.strand.list <- list()
+    
+    ## bg.list <- read.bench(bg.file)
+    ## full.strand.list$both <- bg.list$fread
+    full.strand.times <- list()
+    ## full.strand.times$both <-
+    ##   data.table(strand="both",
+    ##              rows=nrow(bg.list$fread),
+    ##              bg.list$times)
+    
     strand.files <- list(both=bg.file)
-    for(strand in c("+", "-")){
+    ##for(strand in c("+", "-")){
       plus.file <- strand.files[[strand]] <-
         paste0(bg.file, strand, "strand")
       strand.list <- read.bench(plus.file)
       full.strand.list[[strand]] <- strand.list$fread
       full.strand.times[[strand]] <-
         data.table(strand, rows=nrow(strand.list$fread), strand.list$times)
-    }
+    ##}
     sample.times <- do.call(rbind, full.strand.times) %>%
       mutate(seconds=time/1e9)
     read.times.list[[bg.file]] <-
@@ -153,100 +158,99 @@ for(tf.name in c("max", "nrsf", "srf")){
     ##save(full.strand.list, windows, file="full.strand.list.RData")
 
     window.strand.list <- list()
-    for(strand in names(full.strand.list)){
+    ##for(strand in names(full.strand.list)){
       one.strand <- full.strand.list[[strand]]
-      if(nrow(one.strand) < 4e7){
-        big.df <- data.frame(one.strand)
-        small.df <- data.frame(windows)
-        times.tables <- microbenchmark(`GenomicRanges::findOverlaps`={
-          big.gr <- with(big.df, {
-            GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
-          })
-          small.gr <- with(small.df, {
-            GRanges(chrom, IRanges(chromStart, chromEnd))
-          })
-          hits.gr <- findOverlaps(big.gr, small.gr)
-          hits.big <- as.data.frame(big.gr[queryHits(hits.gr), ])
-          hits.small <- as.data.frame(small.gr[subjectHits(hits.gr), ])
-        }, `data.table::foverlaps`={
-          big.dt <- data.table(big.df)
-          setkey(big.dt, chrom, chromStart, chromEnd)
-          small.dt <- data.table(small.df)
-          setkey(small.dt, chrom, chromStart, chromEnd)
-          one.join <- foverlaps(big.dt, small.dt, nomatch=0L)
-        }, times=2)
-        stopifnot(all.equal(as.character(one.join$chrom),
-                            as.character(hits.big$seqnames)))
-        stopifnot(all.equal(as.character(one.join$chrom),
-                            as.character(hits.small$seqnames)))
-        stopifnot(all.equal(one.join$chromStart, hits.small$start))
-        stopifnot(all.equal(one.join$chromEnd, hits.small$end))
-        stopifnot(all.equal(one.join$count, hits.big$coverage))
-        stopifnot(all.equal(one.join$i.chromStart, hits.big$start))
-        stopifnot(all.equal(one.join$i.chromEnd, hits.big$end))
+      big.df <- data.frame(one.strand)
+      small.df <- data.frame(windows)
+      times.tables <- microbenchmark(`GenomicRanges::findOverlaps`={
+        big.gr <- with(big.df, {
+          GRanges(chrom, IRanges(chromStart, chromEnd), coverage=count)
+        })
+        small.gr <- with(small.df, {
+          GRanges(chrom, IRanges(chromStart, chromEnd))
+        })
+        hits.gr <- findOverlaps(big.gr, small.gr)
+        hits.big <- as.data.frame(big.gr[queryHits(hits.gr), ])
+        hits.small <- as.data.frame(small.gr[subjectHits(hits.gr), ])
+      }, `data.table::foverlaps`={
+        big.dt <- data.table(big.df)
+        setkey(big.dt, chrom, chromStart, chromEnd)
+        small.dt <- data.table(small.df)
+        setkey(small.dt, chrom, chromStart, chromEnd)
+        one.join <- foverlaps(big.dt, small.dt, nomatch=0L)
+      }, times=2)
+      stopifnot(all.equal(as.character(one.join$chrom),
+                          as.character(hits.big$seqnames)))
+      stopifnot(all.equal(as.character(one.join$chrom),
+                          as.character(hits.small$seqnames)))
+      stopifnot(all.equal(one.join$chromStart, hits.small$start))
+      stopifnot(all.equal(one.join$chromEnd, hits.small$end))
+      stopifnot(all.equal(one.join$count, hits.big$coverage))
+      stopifnot(all.equal(one.join$i.chromStart, hits.big$start))
+      stopifnot(all.equal(one.join$i.chromEnd, hits.big$end))
 
-        times.indices <- microbenchmark(`GenomicRanges::findOverlaps`={
-          hits.gr <- findOverlaps(big.gr, small.gr)
-        }, `data.table::foverlaps`={
-          hits.dt <- foverlaps(big.dt, small.dt, nomatch=0L, which=TRUE)
-        }, times=2)
-        stopifnot(all.equal(queryHits(hits.gr), hits.dt$xid))
-        stopifnot(all.equal(subjectHits(hits.gr), hits.dt$yid))
-        
-        windows.bed <- small.df[, c("chrom", "chromStart", "chromEnd")]
-        write.table(windows.bed, "windows.bed",
-                    quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
+      times.indices <- microbenchmark(`GenomicRanges::findOverlaps`={
+        hits.gr <- findOverlaps(big.gr, small.gr)
+      }, `data.table::foverlaps`={
+        hits.dt <- foverlaps(big.dt, small.dt, nomatch=0L, which=TRUE)
+      }, times=2)
+      stopifnot(all.equal(queryHits(hits.gr), hits.dt$xid))
+      stopifnot(all.equal(subjectHits(hits.gr), hits.dt$yid))
+      
+      windows.bed <- small.df[, c("chrom", "chromStart", "chromEnd")]
+      write.table(windows.bed, "windows.bed",
+                  quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
 
-        strand.file <- strand.files[[strand]]
-        bedtools <- function(intersectBed){
-          cmd <- 
-            paste(intersectBed,
-                  "-wa -wb -a windows.bed -b",
-                  strand.file,
-                  "> overlap.bedGraph")
-          system(cmd)
-        }
-        R.cmd <-
-          paste("R --no-save --args",
+      strand.file <- strand.files[[strand]]
+      bedtools <- function(intersectBed){
+        cmd <- 
+          paste(intersectBed,
+                "-wa -wb -a windows.bed -b",
                 strand.file,
-                "windows.bed overlap-startup.bedGraph < intersect.R")
-        
-        times.IO <- microbenchmark(`intersectBed-2.14.3`={
-          bedtools("/usr/bin/intersectBed")
-        }, `intersectBed-2.17.0`={
-          bedtools("bedtools-2.17.0/bin/intersectBed -sorted")
-        }, `intersectBed-2.22.1`={
-          bedtools("bedtools2/bin/intersectBed -sorted")
-        }, startup.fread.foverlaps.write={
-          system(R.cmd)
-        }, fread.foverlaps.write={
-          ## Is intersectBed slower simply because it needs to read/write
-          ## the files from/to disk? Try read/write in R to compare.
-          one.strand <- fread(strand.file)
-          setnames(one.strand, c("chrom", "chromStart", "chromEnd", "coverage"))
-          setkey(one.strand, chrom, chromStart, chromEnd)
-          windows <- fread("windows.bed")
-          setnames(windows, c("chrom", "chromStart", "chromEnd"))
-          setkey(windows, chrom, chromStart, chromEnd)
-          one.join <- foverlaps(one.strand, windows, nomatch=0L)
-          write.table(one.join, file="overlap-R.bedGraph",
-                      quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
-        }, times=2)
-        system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")
-
-        meta <- 
-          data.table(sample.id, tf.name, experiment, strand,
-                     query.rows=nrow(one.strand),
-                     subject.rows=nrow(windows),
-                     overlap.rows=nrow(one.join))
-        overlap.times.list[[paste(bg.file, strand)]] <-
-          rbind(data.table(meta, what="indices", times.tables),
-                data.table(meta, what="tables", times.indices),
-                data.table(meta, what="IO", times.IO))
+                "> overlap.bedGraph")
+        system(cmd)
       }
-    }
-  }
-}
+      R.cmd <-
+        paste("R --no-save --args",
+              strand.file,
+              "windows.bed overlap-startup.bedGraph < intersect.R")
+      
+      times.IO <- microbenchmark(`intersectBed-2.14.3`={
+        bedtools("/usr/bin/intersectBed")
+      }, `intersectBed-2.17.0`={
+        bedtools("bedtools-2.17.0/bin/intersectBed -sorted")
+      }, `intersectBed-2.22.1`={
+        bedtools("bedtools2/bin/intersectBed -sorted")
+      }, startup.fread.foverlaps.write={
+        system(R.cmd)
+      }, fread.foverlaps.write={
+        ## Is intersectBed slower simply because it needs to read/write
+        ## the files from/to disk? Try read/write in R to compare.
+        one.strand <- fread(strand.file)
+        setnames(one.strand, c("chrom", "chromStart", "chromEnd", "coverage"))
+        setkey(one.strand, chrom, chromStart, chromEnd)
+        windows <- fread("windows.bed")
+        setnames(windows, c("chrom", "chromStart", "chromEnd"))
+        setkey(windows, chrom, chromStart, chromEnd)
+        one.join <- foverlaps(one.strand, windows, nomatch=0L)
+        write.table(one.join, file="overlap-R.bedGraph",
+                    quote=FALSE, row.names=FALSE, sep="\t", col.names=FALSE)
+      }, times=2)
+      system("wc -l overlap-R.bedGraph overlap-startup.bedGraph overlap.bedGraph")
+
+      meta <- 
+        data.table(sample.id, tf.name, experiment, strand,
+                   query.rows=nrow(one.strand),
+                   subject.rows=nrow(windows),
+                   overlap.rows=nrow(one.join))
+      overlap.times.list[[paste(bg.file, strand)]] <-
+        rbind(data.table(meta, what="indices", times.tables),
+              data.table(meta, what="tables", times.indices),
+              data.table(meta, what="IO", times.IO))
+    ##}#strand
+  }#bg.file.i
+}#tf.name
+
 
 TF.benchmark <-
   list(overlap=do.call(rbind, overlap.times.list),
