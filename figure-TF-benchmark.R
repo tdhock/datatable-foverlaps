@@ -2,6 +2,7 @@ works_with_R("3.1.2",
              dplyr="0.4.0",
              "hadley/tidyr@3de52c46f12d0d4cba603aa4e63e39f2370a9cfd",
              ##"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
+             data.table="1.9.4",
              directlabels="2014.6.13",
              "tdhock/ggplot2@aac38b6c48c016c88123208d497d896864e74bd7")
 
@@ -43,8 +44,7 @@ ov <- TF.benchmark$overlap %>%
   mutate(method=ifelse(expr %in% names(bed.labs),
            bed.labs[paste(expr)],
            paste(expr)),
-         seconds=time/1e9) %>%
-  filter(seconds < 50)
+         seconds=time/1e9)
 
 overlab.df <-
   data.table(rows=3.5e7,
