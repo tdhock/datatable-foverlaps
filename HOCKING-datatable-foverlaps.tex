@@ -81,12 +81,10 @@ VS
   \item[1993] S exclusively licensed to StatSci/MathSoft.\\
     R by Ross Ihaka and Robert Gentleman\\
     (Univ Auckland, New Zealand).
-  \item[1998] Association of Computing Machinery 
-    Software System award
-    to John M Chambers for
+  \item[1998] Association of Computing Machinery Software System award
+    to John M Chambers for ``the S system, which has forever altered
+    the way people analyze, visualize, and manipulate data.''
   \end{description}
-  ``the S system, which has forever altered the way people analyze,
-  visualize, and manipulate data.''
   
   \vskip 0.5cm Source: Wikipedia, R-FAQ.
 \end{frame}
@@ -247,7 +245,7 @@ This is a major feature addition to data.table.
 \end{frame}
 
 \begin{frame}
-  \frametitle{Summary of contenders}
+  \frametitle{Summary of contenders, demo}
   
   \begin{tabular}{cccc}
     &
@@ -391,12 +389,23 @@ data.table::foverlaps(bedGraph.dt, windows.dt,
 
     \includegraphics[height=2.5cm]{datatable} =
     \includegraphics[height=2.5cm]{bioconductor} 
+
+    ... but are they correct?
   
 \end{frame}
 
-\begin{frame}
-  \frametitle{TODO plot when R is different from bedtools}
-  
+\begin{frame}[fragile]
+  \frametitle{Need chromStart+1 in R!}
+chipseq.bedGraph
+\begin{verbatim}
+chr1   0 200 0
+chr1 200 300 1
+\end{verbatim}
+
+
+
+\input{table-simple}
+
 \end{frame}
 
 \section{And the champion is...}

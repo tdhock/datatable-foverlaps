@@ -1,4 +1,4 @@
-HOCKING-datatable-foverlaps.pdf: HOCKING-datatable-foverlaps.tex figure-TF-benchmark.pdf 
+HOCKING-datatable-foverlaps.pdf: HOCKING-datatable-foverlaps.tex figure-TF-benchmark.pdf table-simple.tex
 	pdflatex HOCKING-datatable-foverlaps
 	pdflatex HOCKING-datatable-foverlaps
 piecewise.constant.RData: piecewise.constant.R
@@ -10,4 +10,8 @@ figure-TF-benchmark.pdf: figure-TF-benchmark.R TF.benchmark.RData
 full.strand.times.RData: full.strand.times.R
 	R --no-save < $<
 figure-full-strand-times.pdf: figure-full-strand-times.R full.strand.times.RData
+	R --no-save < $<
+simple.RData: simple.R
+	R --no-save < $<
+table-simple.tex: table-simple.R simple.RData
 	R --no-save < $<
