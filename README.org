@@ -7,6 +7,24 @@ is implemented by
 - [[http://www.bioconductor.org/packages/release/bioc/html/GenomicRanges.html][GenomicRanges::findOverlaps]] in R.
 - [[https://github.com/arq5x/bedtools2][bedtools intersect]] command line program.
 
-Which of these packages is fastest?
+** Which is fastest? 
 
-Do they all give the same results?
+Recent versions of these packages are all pretty fast, see [[file:HOCKING-datatable-foverlaps.pdf][slides]] for
+details.
+
+** Do they all give the same results? 
+
+They all give the correct results, if used correctly. The only issue
+is that [[http://genome.ucsc.edu/FAQ/FAQtracks.html#tracks1][chromStart is 0-based and chromEnd is 1-based in bedGraph
+files]], so you need to use chromStart+1 to get correct results in
+R. More specifically, if you read a bed file into R as a data.frame
+with columns chrom, chromStart, chromEnd, you need to use
+=IRanges(chromStart+1L, chromEnd)= or
+=data.table(chromStart=chromStart+1L, chromEnd)= as input to
+findOverlaps/foverlaps.
+
+** How to reproduce these results?
+
+Clone this git repos and then type =make=, which should re-do the
+timings in =TF.benchmark.R=, and re-make the [[file:HOCKING-datatable-foverlaps.pdf][slides]]. If necessary, =rm
+TF.benchmark.RData= first.

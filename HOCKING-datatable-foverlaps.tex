@@ -411,8 +411,17 @@ chr1 200 300 1
 \section{And the champion is...}
 
 \begin{frame}
-  \frametitle{Most recent versions of all packages have similar
-    speeds}
+  \frametitle{All packages have similar speed, accuracy}
+
+  Caveats: 
+  \begin{itemize}
+  \item need most recent versions!
+  \item need chromStart+1 in R!
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Bonus points}
   +1 to
   \begin{itemize}
   \item \textbf{bedtools} for binary files (BAM).
@@ -423,9 +432,9 @@ chr1 200 300 1
     (not yet implemented in \texttt{data.table::foverlaps}).
   \item \textbf{GenomicRanges::findOverlaps} for maxgap \\
     (not yet implemented in \texttt{data.table::foverlaps}).
-  \item XXX for accuracy.
+  \item \textbf{bedtools} for native support for 0-based chromStart of
+    bed/bedGraph files (need to use chromStart+1 in R).
   \end{itemize}
-
 \end{frame}
 
 \section{Google Summer of Code}
