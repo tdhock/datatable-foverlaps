@@ -25,6 +25,10 @@ findOverlaps/foverlaps.
 
 ** How to reproduce these results?
 
-Clone this git repos and then type =make=, which should re-do the
-timings in =TF.benchmark.R=, and re-make the [[file:HOCKING-datatable-foverlaps.pdf][slides]]. If necessary, =rm
-TF.benchmark.RData= first.
+The bedGraph files are big so I did not put them online anywhere,
+which makes it impossible to re-do the timings in TF.benchmark.RData.
+
+However a subset of the data is available:
+- http://cbio.ensmp.fr/~thocking/data/overlap-benchmark.tgz
+- http://cbio.ensmp.fr/~thocking/data/full.strand.list.RData
+ 
