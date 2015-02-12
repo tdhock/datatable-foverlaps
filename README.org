@@ -7,6 +7,10 @@ is implemented by
 - [[http://www.bioconductor.org/packages/release/bioc/html/GenomicRanges.html][GenomicRanges::findOverlaps]] in R.
 - [[https://github.com/arq5x/bedtools2][bedtools intersect]] command line program.
 
+** Demonstration
+
+See [[demo.Rterm]] for the terminal output during my talk.
+
 ** Which is fastest? 
 
 Recent versions of these packages are all pretty fast, see [[file:HOCKING-datatable-foverlaps.pdf][slides]] for
