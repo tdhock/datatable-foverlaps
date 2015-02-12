@@ -14,7 +14,8 @@ See [[demo.Rterm]] for the terminal output during my talk.
 ** Which is fastest? 
 
 Recent versions of these packages are all pretty fast, see [[file:HOCKING-datatable-foverlaps.pdf][slides]] for
-details.
+details. The only big winner is =data.table::fread=, 
+which is much faster than =read.table= or =rtracklayer::import= for reading big bed/bedGraph files.
 
 ** Do they all give the same results? 
 
