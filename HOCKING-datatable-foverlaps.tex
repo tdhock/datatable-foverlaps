@@ -398,11 +398,16 @@ data.table::foverlaps(bedGraph.dt, windows.dt,
   \frametitle{Need chromStart+1 in R!}
 chipseq.bedGraph
 \begin{verbatim}
-chr1   0 200 0
-chr1 200 300 1
+chrom chromStart chromEnd coverage
+chr1           0      200        1
+chr1         200      300        2
 \end{verbatim}
 
-
+Expected versus computed coverage for 
+\begin{itemize}
+\item 4 test windows (columns) and 
+\item 5 overlap methods (rows).
+\end{itemize}
 
 \input{table-simple}
 

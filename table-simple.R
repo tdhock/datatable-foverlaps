@@ -11,7 +11,7 @@ simple %>%
 short <- simple %>%
   mutate(status=ifelse(status=="correct", "ok", "incorrect"),
          test.name=paste0("test", test.i))
-wide <- dcast(short, method ~ test.name, value.var="status")
+wide <- dcast(short, method ~ test.name, value.var="computed")
 test.info <- short %>%
   filter(method=="foverlaps")
 test.dt <- test.info[, .(chromStart, chromEnd, expected)]

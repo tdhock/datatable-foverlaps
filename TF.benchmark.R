@@ -2,6 +2,7 @@ works_with_R("3.1.2",
              GenomicRanges="1.18.4",
              dplyr="0.4.0",
              microbenchmark="1.3.0",
+             rtracklayer="1.26.2",
              ####"Rdatatable/data.table@84ba1151299ba49e833e68a2436630216b653306",
              data.table="1.9.4")
 
@@ -27,10 +28,14 @@ wc <- function(f){
 }
 
 read.bench <- function(filename){
+  fmt <- sub("[-+]strand$", "", sub(".*[.]", "", filename))
+  print(fmt)
   times <- microbenchmark(fread={
     dt <- fread(filename)
     setnames(dt, names(colClasses))
     setkey(dt, chrom, chromStart, chromEnd)
+  }, import={
+    gr <- import(filename, format=fmt)
   }, read.table={
     df <-
       read.table(filename,

@@ -17,6 +17,7 @@ algo.colors <-
     "startup.fread.foverlaps.write"="black",
     "data.table::fread"="#f37036",
     "read.table"="black",
+    "rtracklayer::import"="#1892aa",
     "GenomicRanges::findOverlaps"="#1892aa")
 
 over.end <- list(dl.trans(x=x+0.1), "last.qp")
@@ -152,8 +153,12 @@ refs <-
   data.table(unit=c("1 second", "1 minute"),
              seconds=c(1, 60),
              vjust=c(-0.5, 1.5))
+readNames <-
+  c(fread="data.table::fread",
+    import="rtracklayer::import")
 read.times <- TF.benchmark$read %>%
-  mutate(method=ifelse(expr=="read.table", "read.table", "data.table::fread"))
+  mutate(method=ifelse(expr %in% names(readNames),
+           readNames[as.character(expr)], paste(expr)))
 lab.df <-
   data.table(rows=3.6e7,
              method=c("data.table::fread", "read.table"),

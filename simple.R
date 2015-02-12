@@ -5,7 +5,7 @@ works_with_R("3.1.2",
 bedGraph <- data.table(chrom="chr1",
                        chromStart=as.integer(c(0, 200)),
                        chromEnd=as.integer(c(200, 300)),
-                       coverage=as.integer(c(0, 1)))
+                       coverage=as.integer(c(1, 2)))
 bg.gr <- with(bedGraph, {
   GRanges(chrom, IRanges(chromStart, chromEnd), coverage=coverage)
 })
@@ -25,10 +25,10 @@ test <- function(chromStart, chromEnd, expected){
        expected=as.integer(expected))
 }
 tests <-
-  list(test(200, 1000, 1),
-       test(199, 1000, c(0, 1)),
-       test(0, 200, 0),
-       test(0, 201, c(0, 1)))
+  list(test(200, 1000, 2),
+       test(199, 1000, c(1, 2)),
+       test(0, 200, 1),
+       test(0, 201, c(1, 2)))
 methods <-
   list("intersectBed-2.22.1"=function(win){
     write.table(win, "win.bed",
@@ -79,6 +79,7 @@ for(test.i in seq_along(tests)){
     result.list[[paste(test.i, method)]] <-
       data.table(test.i, method, status,
                  expected=paste(test.list$expected, collapse=","),
+                 computed=paste(computed, collapse=","),
                  chromStart=test.list$window$chromStart,
                  chromEnd=test.list$window$chromEnd)
   }
