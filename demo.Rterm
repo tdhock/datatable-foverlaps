@@ -1,0 +1,334 @@
+
+R version 3.1.2 (2014-10-31) -- "Pumpkin Helmet"
+Copyright (C) 2014 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> > options(STERM='iESS', str.dendrogram.last="'", editor='emacsclient', show.error.locations=TRUE)
+> dir()
+[1] "chip-seq.bedGraph" "windows.bed"
+> system.time(chipseq.df <- read.table("chip-seq.bedGraph"))
+   user  system elapsed
+ 62.243   0.725  63.077
+> library(data.table)
+data.table 1.9.4  For help type: ?data.table
+*** NB: by=.EACHI is now explicit. See README to restore previous behaviour.
+> system.time(chipseq.dt <- fread("chip-seq.bedGraph"))
+   user  system elapsed
+  1.050   0.071   1.122
+> head(chipseq.dt)
+     V1    V2    V3 V4
+1: chr1     0   247  0
+2: chr1   247   274  1
+3: chr1   274  4777  0
+4: chr1  4777  4804  1
+5: chr1  4804 63693  0
+6: chr1 63693 63720  1
+> head(chipseq.df)
+    V1    V2    V3 V4
+1 chr1     0   247  0
+2 chr1   247   274  1
+3 chr1   274  4777  0
+4 chr1  4777  4804  1
+5 chr1  4804 63693  0
+6 chr1 63693 63720  1
+> str(chipseq.dt)
+Classes 'data.table' and 'data.frame':	7617673 obs. of  4 variables:
+ $ V1: chr  "chr1" "chr1" "chr1" "chr1" ...
+ $ V2: int  0 247 274 4777 4804 63693 63720 69977 70004 78307 ...
+ $ V3: int  247 274 4777 4804 63693 63720 69977 70004 78307 78319 ...
+ $ V4: int  0 1 0 1 0 1 0 1 0 1 ...
+ - attr(*, ".internal.selfref")=<externalptr>
+> str(chipseq.df)
+'data.frame':	7617673 obs. of  4 variables:
+ $ V1: Factor w/ 25 levels "chr1","chr10",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ V2: int  0 247 274 4777 4804 63693 63720 69977 70004 78307 ...
+ $ V3: int  247 274 4777 4804 63693 63720 69977 70004 78307 78319 ...
+ $ V4: int  0 1 0 1 0 1 0 1 0 1 ...
+> names(chipseq.df) <- c("chrom", "chromStart", "chromEnd", "coverage")
+> setnames(chipseq.dt, c("chrom", "chromStart", "chromEnd", "coverage"))
+> head(chipseq.df)
+  chrom chromStart chromEnd coverage
+1  chr1          0      247        0
+2  chr1        247      274        1
+3  chr1        274     4777        0
+4  chr1       4777     4804        1
+5  chr1       4804    63693        0
+6  chr1      63693    63720        1
+> head(chipseq.dt)
+   chrom chromStart chromEnd coverage
+1:  chr1          0      247        0
+2:  chr1        247      274        1
+3:  chr1        274     4777        0
+4:  chr1       4777     4804        1
+5:  chr1       4804    63693        0
+6:  chr1      63693    63720        1
+> windows.dt <- fread("windows.bed")
+> windows.dt
+       V1       V2       V3
+  1: chr1   556627   562845
+  2: chr1  1154083  1161254
+  3: chr1  8857669  8865906
+  4: chr1 10452200 10458360
+  5: chr1 11681518 11688282
+ ---
+409: chrY 11938333 11946133
+410: chrY 12118521 12124535
+411: chrY 12125638 12131652
+412: chrY 12126476 12132490
+413: chrY 57379047 57385061
+> setnames(windows.dt, c("chrom", "chromStart", "chromEnd"))
+> windows.dt
+     chrom chromStart chromEnd
+  1:  chr1     556627   562845
+  2:  chr1    1154083  1161254
+  3:  chr1    8857669  8865906
+  4:  chr1   10452200 10458360
+  5:  chr1   11681518 11688282
+ ---
+409:  chrY   11938333 11946133
+410:  chrY   12118521 12124535
+411:  chrY   12125638 12131652
+412:  chrY   12126476 12132490
+413:  chrY   57379047 57385061
+> library(GenomicRanges)
+Loading required package: BiocGenerics
+Loading required package: parallel
+
+Attaching package: 'BiocGenerics'
+
+The following objects are masked from 'package:parallel':
+
+    clusterApply, clusterApplyLB, clusterCall, clusterEvalQ,
+    clusterExport, clusterMap, parApply, parCapply, parLapply,
+    parLapplyLB, parRapply, parSapply, parSapplyLB
+
+The following object is masked from 'package:stats':
+
+    xtabs
+
+The following objects are masked from 'package:base':
+
+    Filter, Find, Map, Position, Reduce, anyDuplicated, append,
+    as.data.frame, as.vector, cbind, colnames, do.call, duplicated,
+    eval, evalq, get, intersect, is.unsorted, lapply, mapply, match,
+    mget, order, paste, pmax, pmax.int, pmin, pmin.int, rank, rbind,
+    rep.int, rownames, sapply, setdiff, sort, table, tapply, union,
+    unique, unlist, unsplit
+
+Loading required package: S4Vectors
+Loading required package: stats4
+Loading required package: IRanges
+Loading required package: GenomeInfoDb
+> windows.dt
+     chrom chromStart chromEnd
+  1:  chr1     556627   562845
+  2:  chr1    1154083  1161254
+  3:  chr1    8857669  8865906
+  4:  chr1   10452200 10458360
+  5:  chr1   11681518 11688282
+ ---
+409:  chrY   11938333 11946133
+410:  chrY   12118521 12124535
+411:  chrY   12125638 12131652
+412:  chrY   12126476 12132490
+413:  chrY   57379047 57385061
+> chipseq.dt
+         chrom chromStart chromEnd coverage
+      1:  chr1          0      247        0
+      2:  chr1        247      274        1
+      3:  chr1        274     4777        0
+      4:  chr1       4777     4804        1
+      5:  chr1       4804    63693        0
+     ---
+7617669:  chrY   57441842 57442157        0
+7617670:  chrY   57442157 57442184        1
+7617671:  chrY   57442184 57442428        0
+7617672:  chrY   57442428 57442455        1
+7617673:  chrY   57442455 59373566        0
+> chipseq.dt$chromStart1 <- chipseq.dt$chromStart + 1L
+> chipseq.dt
+         chrom chromStart chromEnd coverage chromStart1
+      1:  chr1          0      247        0           1
+      2:  chr1        247      274        1         248
+      3:  chr1        274     4777        0         275
+      4:  chr1       4777     4804        1        4778
+      5:  chr1       4804    63693        0        4805
+     ---
+7617669:  chrY   57441842 57442157        0    57441843
+7617670:  chrY   57442157 57442184        1    57442158
+7617671:  chrY   57442184 57442428        0    57442185
+7617672:  chrY   57442428 57442455        1    57442429
+7617673:  chrY   57442455 59373566        0    57442456
+> chipseq.dt[, chromStart2 := chromStart + 1L ]
+> chipseq.dt
+         chrom chromStart chromEnd coverage chromStart1 chromStart2
+      1:  chr1          0      247        0           1           1
+      2:  chr1        247      274        1         248         248
+      3:  chr1        274     4777        0         275         275
+      4:  chr1       4777     4804        1        4778        4778
+      5:  chr1       4804    63693        0        4805        4805
+     ---
+7617669:  chrY   57441842 57442157        0    57441843    57441843
+7617670:  chrY   57442157 57442184        1    57442158    57442158
+7617671:  chrY   57442184 57442428        0    57442185    57442185
+7617672:  chrY   57442428 57442455        1    57442429    57442429
+7617673:  chrY   57442455 59373566        0    57442456    57442456
+> library(microbenchmark)
+> microbenchmark(":="=chipseq.dt[, chromStart2 := chromStart + 1L ], "<-"=chipseq.dt$chromStart1 <- chipseq.dt$chromStart + 1L, times=5)
+Unit: milliseconds
+ expr      min       lq     mean    median       uq      max neval cld
+   :=  57.7860  96.4265 172.0590  96.76327 293.8863 315.4329     5  a
+   <- 404.0977 418.3664 512.3278 424.84800 425.3097 889.0172     5   b
+> windows.dt[, chromStart1 := chromStart + 1L]
+> windows.dt
+     chrom chromStart chromEnd chromStart1
+  1:  chr1     556627   562845      556628
+  2:  chr1    1154083  1161254     1154084
+  3:  chr1    8857669  8865906     8857670
+  4:  chr1   10452200 10458360    10452201
+  5:  chr1   11681518 11688282    11681519
+ ---
+409:  chrY   11938333 11946133    11938334
+410:  chrY   12118521 12124535    12118522
+411:  chrY   12125638 12131652    12125639
+412:  chrY   12126476 12132490    12126477
+413:  chrY   57379047 57385061    57379048
+> setkey(windows.dt, chrom, chromStart1, chromEnd)
+> overlap.dt <- foverlaps(chipseq.dt, windows.dt, nomatch=0L, which=TRUE)
+> overlap.dt
+           xid yid
+    1:      76   1
+    2:      77   1
+    3:      78   1
+    4:      79   1
+    5:      80   1
+   ---
+47836: 7616765 413
+47837: 7616766 413
+47838: 7616767 413
+47839: 7616768 413
+47840: 7616769 413
+> windows.gr <- with(windows.dt, GRanges(chrom, IRanges(chromStart1, chromEnd)))
+> windows.gr
+GRanges object with 413 ranges and 0 metadata columns:
+        seqnames               ranges strand
+           <Rle>            <IRanges>  <Rle>
+    [1]     chr1 [  556628,   562845]      *
+    [2]     chr1 [ 1154084,  1161254]      *
+    [3]     chr1 [ 8857670,  8865906]      *
+    [4]     chr1 [10452201, 10458360]      *
+    [5]     chr1 [11681519, 11688282]      *
+    ...      ...                  ...    ...
+  [409]     chrY [11938334, 11946133]      *
+  [410]     chrY [12118522, 12124535]      *
+  [411]     chrY [12125639, 12131652]      *
+  [412]     chrY [12126477, 12132490]      *
+  [413]     chrY [57379048, 57385061]      *
+  -------
+  seqinfo: 24 sequences from an unspecified genome; no seqlengths
+> chipseq.gr <- with(chipseq.dt, GRanges(chrom, IRanges(chromStart1, chromEnd)), coverage=coverage)
+> chipseq.gr
+GRanges object with 7617673 ranges and 0 metadata columns:
+            seqnames               ranges strand
+               <Rle>            <IRanges>  <Rle>
+        [1]     chr1        [   1,   247]      *
+        [2]     chr1        [ 248,   274]      *
+        [3]     chr1        [ 275,  4777]      *
+        [4]     chr1        [4778,  4804]      *
+        [5]     chr1        [4805, 63693]      *
+        ...      ...                  ...    ...
+  [7617669]     chrY [57441843, 57442157]      *
+  [7617670]     chrY [57442158, 57442184]      *
+  [7617671]     chrY [57442185, 57442428]      *
+  [7617672]     chrY [57442429, 57442455]      *
+  [7617673]     chrY [57442456, 59373566]      *
+  -------
+  seqinfo: 25 sequences from an unspecified genome; no seqlengths
+> chipseq.gr <- with(chipseq.dt, GRanges(chrom, IRanges(chromStart1, chromEnd), coverage=coverage))
+> chipseq.gr
+GRanges object with 7617673 ranges and 1 metadata column:
+            seqnames               ranges strand   |  coverage
+               <Rle>            <IRanges>  <Rle>   | <integer>
+        [1]     chr1        [   1,   247]      *   |         0
+        [2]     chr1        [ 248,   274]      *   |         1
+        [3]     chr1        [ 275,  4777]      *   |         0
+        [4]     chr1        [4778,  4804]      *   |         1
+        [5]     chr1        [4805, 63693]      *   |         0
+        ...      ...                  ...    ... ...       ...
+  [7617669]     chrY [57441843, 57442157]      *   |         0
+  [7617670]     chrY [57442158, 57442184]      *   |         1
+  [7617671]     chrY [57442185, 57442428]      *   |         0
+  [7617672]     chrY [57442429, 57442455]      *   |         1
+  [7617673]     chrY [57442456, 59373566]      *   |         0
+  -------
+  seqinfo: 25 sequences from an unspecified genome; no seqlengths
+> overlap.gr <- findOverlaps(chipseq.gr, windows.gr)
+> overlap.gr
+Hits of length 47840
+queryLength: 7617673
+subjectLength: 413
+      queryHits subjectHits
+       <integer>   <integer>
+ 1            76           1
+ 2            77           1
+ 3            78           1
+ 4            79           1
+ 5            80           1
+ ...         ...         ...
+ 47836   7616765         413
+ 47837   7616766         413
+ 47838   7616767         413
+ 47839   7616768         413
+ 47840   7616769         413
+> str(overlap.gr)
+Formal class 'Hits' [package "S4Vectors"] with 6 slots
+  ..@ queryHits      : int [1:47840] 76 77 78 79 80 81 82 83 84 85 ...
+  ..@ subjectHits    : int [1:47840] 1 1 1 1 1 1 1 1 1 1 ...
+  ..@ queryLength    : int 7617673
+  ..@ subjectLength  : int 413
+  ..@ elementMetadata: NULL
+  ..@ metadata       : list()
+> str(overlap.dt)
+Classes 'data.table' and 'data.frame':	47840 obs. of  2 variables:
+ $ xid: int  76 77 78 79 80 81 82 83 84 85 ...
+ $ yid: int  1 1 1 1 1 1 1 1 1 1 ...
+ - attr(*, ".internal.selfref")=<externalptr>
+> (times <- microbenchmark(data.table=foverlaps(chipseq.dt, windows.dt, nomatch=0L, which=TRUE),GenomicRanges=findOverlaps(chipseq.gr, windows.gr), times=5))
+Unit: milliseconds
+          expr       min        lq      mean   median        uq       max neval
+    data.table  747.2427  766.2858  786.0742  774.023  817.2832  825.5361     5
+ GenomicRanges 1125.8862 1133.1635 1155.1296 1153.371 1180.2522 1182.9753     5
+ cld
+  a
+   b
+> str(times)
+Classes 'microbenchmark' and 'data.frame':	10 obs. of  2 variables:
+ $ expr: Factor w/ 2 levels "data.table","GenomicRanges": 2 1 2 1 2 1 2 1 1 2
+ $ time: num  1.13e+09 8.17e+08 1.13e+09 8.26e+08 1.18e+09 ...
+> as.data.frame(times)
+            expr       time
+1  GenomicRanges 1133163453
+2     data.table  817283172
+3  GenomicRanges 1125886227
+4     data.table  825536146
+5  GenomicRanges 1182975345
+6     data.table  766285782
+7  GenomicRanges 1180252209
+8     data.table  774023024
+9     data.table  747242749
+10 GenomicRanges 1153370517
+>
